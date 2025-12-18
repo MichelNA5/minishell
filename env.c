@@ -6,13 +6,23 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/11 23:46:46 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/18 14:34:54 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-extern char	**environ;
+static int	env_count(char **env)
+{
+	int	count;
+
+	count = 0;
+	if (!env)
+		return (0);
+	while (env[count])
+		count++;
+	return (count);
+}
 
 char	**copy_env(char **env)
 {
@@ -42,7 +52,7 @@ char	*get_env_var(char *name, char **env)
 	int	len;
 
 	if (!env)
-		env = environ;
+		env = g_env;
 	len = ft_strlen(name);
 	i = 0;
 	while (env[i])
@@ -59,8 +69,11 @@ void	set_env_var(char *name, char *value)
 	int		i;
 	int		len;
 	char	*new_var;
+	char	**new_env;
+	int		count;
 
-    
+	if (!name || !value)
+		return ;
 	len = ft_strlen(name) + ft_strlen(value) + 2;
 	new_var = malloc(len);
 	if (!new_var)
@@ -69,19 +82,34 @@ void	set_env_var(char *name, char *value)
 	ft_strlcat(new_var, "=", len);
 	ft_strlcat(new_var, value, len);
 	i = 0;
-	while (environ[i])
+	while (g_env && g_env[i])
 	{
-		if (ft_strncmp(environ[i], name, ft_strlen(name)) == 0
-			&& environ[i][ft_strlen(name)] == '=')
+		if (ft_strncmp(g_env[i], name, ft_strlen(name)) == 0
+			&& g_env[i][ft_strlen(name)] == '=')
 		{
-			free(environ[i]);
-			environ[i] = new_var;
+			free(g_env[i]);
+			g_env[i] = new_var;
 			return;
 		}
 		i++;
 	}
-	printf("minishell: export: cannot modify environment\n");
-	free(new_var);
+	count = env_count(g_env);
+	new_env = malloc(sizeof(char *) * (count + 2));
+	if (!new_env)
+	{
+		free(new_var);
+		return ;
+	}
+	i = 0;
+	while (i < count)
+	{
+		new_env[i] = g_env[i];
+		i++;
+	}
+	new_env[count] = new_var;
+	new_env[count + 1] = NULL;
+	free(g_env);
+	g_env = new_env;
 }
 
 void	unset_env_var(char *name)
@@ -89,17 +117,18 @@ void	unset_env_var(char *name)
 	int	i;
 	int	len;
 
-    
+	if (!name)
+		return ;
 	len = ft_strlen(name);
 	i = 0;
-	while (environ[i])
+	while (g_env && g_env[i])
 	{
-		if (ft_strncmp(environ[i], name, len) == 0 && environ[i][len] == '=')
+		if (ft_strncmp(g_env[i], name, len) == 0 && g_env[i][len] == '=')
 		{
-			free(environ[i]);
-			while (environ[i])
+			free(g_env[i]);
+			while (g_env[i])
 			{
-				environ[i] = environ[i + 1];
+				g_env[i] = g_env[i + 1];
 				i++;
 			}
 			return;

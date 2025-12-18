@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/11 23:42:56 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,10 @@ void	builtin_cd(t_cmd *cmd)
 		return;
 	}
 	new_pwd = getcwd(NULL, 0);
+	if (old_pwd)
+		set_env_var("OLDPWD", old_pwd);
+	if (new_pwd)
+		set_env_var("PWD", new_pwd);
 	if (old_pwd)
 		free(old_pwd);
 	if (new_pwd)

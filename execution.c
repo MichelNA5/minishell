@@ -3,14 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmakhlou <mmakhlou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by mmakhlou         ###   ########.fr       */
+/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	builtin_needs_parent(char *cmd)
+{
+	if (!cmd)
+		return (0);
+	return (ft_strcmp(cmd, "cd") == 0
+		|| ft_strcmp(cmd, "export") == 0
+		|| ft_strcmp(cmd, "unset") == 0
+		|| ft_strcmp(cmd, "exit") == 0);
+}
 
 void	execute_command(t_cmd *cmd, t_parser *parser)
 {
@@ -34,21 +44,26 @@ void	execute_command(t_cmd *cmd, t_parser *parser)
 	}
 	if (is_builtin(cmd->args[0]))
 	{
-		pid = fork();
-		if (pid == 0)
-		{
+		if (builtin_needs_parent(cmd->args[0]))
 			execute_builtin(cmd);
-			exit(g_exit_status);
-		}
-		else if (pid < 0)
-			perror("fork");
 		else
 		{
-			waitpid(pid, &status, 0);
-			if (WIFEXITED(status))
-				g_exit_status = WEXITSTATUS(status);
-			else if (WIFSIGNALED(status))
-				g_exit_status = 128 + WTERMSIG(status);
+			pid = fork();
+			if (pid == 0)
+			{
+				execute_builtin(cmd);
+				exit(g_exit_status);
+			}
+			else if (pid < 0)
+				perror("fork");
+			else
+			{
+				waitpid(pid, &status, 0);
+				if (WIFEXITED(status))
+					g_exit_status = WEXITSTATUS(status);
+				else if (WIFSIGNALED(status))
+					g_exit_status = 128 + WTERMSIG(status);
+			}
 		}
 	}
 	else

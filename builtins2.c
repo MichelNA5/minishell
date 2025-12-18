@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/11 23:43:01 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/18 14:34:59 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,13 @@
 
 void	builtin_env(t_cmd *cmd)
 {
-	extern char **environ;
 	int	i;
 
 	(void)cmd;
 	i = 0;
-	while (environ && environ[i])
+	while (g_env && g_env[i])
 	{
-		printf("%s\n", environ[i]);
+		printf("%s\n", g_env[i]);
 		i++;
 	}
 	return;
@@ -40,13 +39,12 @@ void	builtin_exit(t_cmd *cmd)
 
 void	print_env_vars(void)
 {
-	extern char	**environ;
 	int			i;
 
 	i = 0;
-	while (environ[i])
+	while (g_env && g_env[i])
 	{
-		printf("declare -x %s\n", environ[i]);
+		printf("declare -x %s\n", g_env[i]);
 		i++;
 	}
 }

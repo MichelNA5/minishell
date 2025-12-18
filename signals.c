@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmakhlou <mmakhlou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by mmakhlou         ###   ########.fr       */
+/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ void	sigint_handler(int sig)
 {
 	g_signal_received = sig;
 	printf("\n");
-	printf("minishell$ ");
 	fflush(stdout);
 }
 

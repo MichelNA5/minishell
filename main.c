@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmakhlou <mmakhlou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by mmakhlou         ###   ########.fr       */
+/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,34 @@ int	main(int argc, char **argv, char **envp)
 void	minishell_loop(char **envp)
 {
 	char		*line;
+	char		*prompt;
 	t_token		*tokens;
 	t_parser	*parser;
+	char		*cwd;
+	char		*tmp;
 
 	(void)envp;
 	while (1)
 	{
-		line = enhanced_readline("minishell$ ");
+		cwd = getcwd(NULL, 0);
+		if (!cwd)
+			prompt = ft_strdup("minishell$ ");
+		else
+		{
+			tmp = ft_strjoin("minishell:", cwd);
+			free(cwd);
+			if (!tmp)
+				prompt = ft_strdup("minishell$ ");
+			else
+			{
+				prompt = ft_strjoin(tmp, "$ ");
+				free(tmp);
+				if (!prompt)
+					prompt = ft_strdup("minishell$ ");
+			}
+		}
+		line = enhanced_readline(prompt);
+		free(prompt);
 		if (!line)
 		{
 			printf("exit\n");
