@@ -1,0 +1,158 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mmakhlou <mmakhlou@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
+/*   Updated: 2024/01/01 00:00:00 by mmakhlou         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef MINISHELL_H
+# define MINISHELL_H
+
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <string.h>
+# include <sys/wait.h>
+# include <sys/stat.h>
+# include <fcntl.h>
+# include <signal.h>
+# include <errno.h>
+# include <termios.h>
+
+# include <dirent.h>
+# include <sys/ioctl.h>
+# include "libft/libft.h"
+
+# define MAX_INPUT_SIZE 1024
+# define MAX_HISTORY_SIZE 100
+# define MAX_ARGS 100
+# define MAX_REDIR 10
+# define BLUE "\033[0;34m"
+# define RESET "\033[0m"
+
+typedef enum e_token_type
+{
+	WORD,
+	PIPE,
+	REDIR_IN,
+	REDIR_OUT,
+	REDIR_APPEND,
+	REDIR_HEREDOC,
+	QUOTE_SINGLE,
+	QUOTE_DOUBLE,
+	DOLLAR
+}	t_token_type;
+
+typedef struct s_token
+{
+	t_token_type	type;
+	char			*value;
+	struct s_token	*next;
+}	t_token;
+
+typedef struct s_redir
+{
+	t_token_type	type;
+	char			*file;
+}	t_redir;
+
+typedef struct s_cmd
+{
+	char			**args;
+	t_redir			*redirs;
+	int				redir_count;
+	int				pipe_in;
+	int				pipe_out;
+}	t_cmd;
+
+typedef struct s_parser
+{
+	t_cmd			*cmds;
+	int				cmd_count;
+}	t_parser;
+
+extern int			g_signal_received;
+extern int			g_exit_status;
+extern int			g_cursor_pos;
+extern char			**g_env;
+
+/* Main functions */
+int					main(int argc, char **argv, char **envp);
+void				minishell_loop(char **envp);
+void				cleanup_and_exit(void);
+
+/* Parsing functions */
+t_token				*tokenize(char *input);
+t_token				*handle_quotes(char *input, int *i, char quote);
+t_token				*handle_word(char *input, int *i);
+t_parser			*parse_tokens(t_token *tokens);
+void				parse_commands(t_parser *parser, t_token *tokens);
+void				parse_redirection(t_parser *parser, int *cmd_idx, t_token **current);
+void				free_parser(t_parser *parser);
+void				free_tokens(t_token *tokens);
+int					count_commands(t_token *tokens);
+int					count_pipes(t_token *tokens);
+
+/* Execution functions */
+void				execute_command(t_cmd *cmd, t_parser *parser);
+void				execute_commands(t_parser *parser);
+void				execute_pipeline(t_parser *parser);
+void				execute_external(t_cmd *cmd);
+void				execute_builtin(t_cmd *cmd);
+int					is_builtin(char *cmd);
+char				*find_executable(char *cmd);
+int					setup_redirections(t_cmd *cmd);
+void				handle_heredoc(char *delimiter);
+void				restore_redirections(void);
+void				setup_pipes(t_parser *parser);
+void				close_pipes(t_parser *parser);
+
+/* Builtin functions */
+void				builtin_echo(t_cmd *cmd);
+void				builtin_cd(t_cmd *cmd);
+void				builtin_pwd(t_cmd *cmd);
+void				builtin_export(t_cmd *cmd);
+void				builtin_unset(t_cmd *cmd);
+void				builtin_env(t_cmd *cmd);
+void				builtin_exit(t_cmd *cmd);
+void				print_env_vars(void);
+
+/* Environment functions */
+char				**copy_env(char **envp);
+char				*get_env_var(char *name, char **env);
+void				set_env_var(char *name, char *value);
+void				unset_env_var(char *name);
+void				free_array(char **array);
+
+/* Signal functions */
+void				setup_signals(void);
+void				sigint_handler(int sig);
+void				sigquit_handler(int sig);
+void				print_error(char *msg);
+
+/* Input and history functions */
+void				init_history(void);
+char				*enhanced_readline(char *prompt);
+void				add_history_entry(char *line);
+void				free_history(void);
+void				display_welcome(char *message);
+void				handle_up_arrow(char *line, int *pos, char *prompt);
+void				handle_down_arrow(char *line, int *pos, char *prompt);
+void				handle_left_arrow(char *line, int *pos, char *prompt);
+void				handle_right_arrow(char *line, int *pos, char *prompt);
+void				handle_char(char *line, int *pos, char c, char *prompt);
+void				handle_backspace(char *line, int *pos, char *prompt);
+void				refresh_line(char *line, int pos, char *prompt);
+
+/* Environment variable expansion */
+char				*expand_env_vars(char *input);
+char				*replace_env_var(char *input, int start, int len, char *value);
+char				*get_var_name(char *input, int start);
+char				*get_var_value(char *var_name);
+
+#endif
