@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/11 23:49:10 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/18 15:02:07 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,19 +92,11 @@ void	display_welcome(char *message)
 
 void	refresh_line(char *line, int pos, char *prompt)
 {
-	int len;
-	int i;
+	int	len;
+	int	i;
 
 	len = ft_strlen(line);
-	printf("\r%s", prompt);
-	i = 0;
-	while (i < len)
-	{
-		printf(" ");
-		i++;
-	}
-	printf("\r%s", prompt);
-	printf("%s", line);
+	printf("\r\033[2K%s%s", prompt, line);
 	i = 0;
 	while (i < len - pos)
 	{
@@ -182,6 +174,10 @@ char	*enhanced_readline(char *prompt)
 		else if (ch == 127 || ch == 8)
 		{
 			handle_backspace(input, &g_cursor_pos, prompt);
+		}
+		else if (ch == '\t')
+		{
+			handle_tab(input, &g_cursor_pos, prompt);
 		}
 		else if (ch >= 32 && ch <= 126)
 		{

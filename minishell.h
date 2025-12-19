@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmakhlou <mmakhlou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by mmakhlou         ###   ########.fr       */
+/*   Updated: 2025/12/18 15:02:33 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,6 +147,7 @@ void				handle_left_arrow(char *line, int *pos, char *prompt);
 void				handle_right_arrow(char *line, int *pos, char *prompt);
 void				handle_char(char *line, int *pos, char c, char *prompt);
 void				handle_backspace(char *line, int *pos, char *prompt);
+void				handle_tab(char *line, int *pos, char *prompt);
 void				refresh_line(char *line, int pos, char *prompt);
 
 /* Environment variable expansion */
