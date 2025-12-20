@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/19 13:16:58 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,11 @@ void	builtin_echo(t_cmd *cmd)
 	{
 		printf("%s", cmd->args[i]);
 		if (cmd->args[i + 1])
-			printf(" ");
+			write(STDOUT_FILENO, " ", 1);
 		i++;
 	}
 	if (newline)
-		printf("\n");
+		write(STDOUT_FILENO, "\n", 1);
 	(void)cmd;
 	return;
 }
@@ -48,7 +48,8 @@ void	builtin_cd(t_cmd *cmd)
 		path = get_env_var("HOME", NULL);
 		if (!path)
 		{
-			printf("minishell: cd: HOME not set\n");
+			write(STDERR_FILENO, "minishell: cd: HOME not set\n",
+				ft_strlen("minishell: cd: HOME not set\n"));
 			return;
 		}
 	}
@@ -83,7 +84,7 @@ void	builtin_pwd(t_cmd *cmd)
 		perror("pwd");
 		return;
 	}
-	printf("%s\n", pwd);
+	ft_putendl_fd(pwd, STDOUT_FILENO);
 	free(pwd);
 	(void)cmd;
 	return;

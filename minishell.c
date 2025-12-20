@@ -37,7 +37,7 @@ void	run_shell(void)
 		input = enhanced_readline("minishell$ ");
 		if (!input)
 		{
-			printf("exit\n");
+			write(STDOUT_FILENO, "exit\n", 5);
 			break;
 		}
 		if (ft_strlen(input) > 0)
@@ -118,6 +118,5 @@ void	display_welcome(char *message)
 
 void	display_prompt(void)
 {
-	printf("minishell$ ");
-	fflush(stdout);
+	write(STDOUT_FILENO, "minishell$ ", ft_strlen("minishell$ "));
 }

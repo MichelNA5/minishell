@@ -6,21 +6,11 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/20 13:42:28 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-static int	builtin_needs_parent(char *cmd)
-{
-	if (!cmd)
-		return (0);
-	return (ft_strcmp(cmd, "cd") == 0
-		|| ft_strcmp(cmd, "export") == 0
-		|| ft_strcmp(cmd, "unset") == 0
-		|| ft_strcmp(cmd, "exit") == 0);
-}
 
 void	execute_command(t_cmd *cmd, t_parser *parser)
 {
@@ -29,9 +19,13 @@ void	execute_command(t_cmd *cmd, t_parser *parser)
 	int		original_stdout;
 	int		original_stdin;
 
-	(void)parser;
 	original_stdout = dup(STDOUT_FILENO);
 	original_stdin = dup(STDIN_FILENO);
+	if (!cmd || !cmd->args || !cmd->args[0])
+	{
+		g_exit_status = 2;
+		return ;
+	}
 	if (setup_redirections(cmd) == -1)
 	{
 		restore_redirections();
@@ -44,34 +38,17 @@ void	execute_command(t_cmd *cmd, t_parser *parser)
 	}
 	if (is_builtin(cmd->args[0]))
 	{
-		if (builtin_needs_parent(cmd->args[0]))
-			execute_builtin(cmd);
-		else
-		{
-			pid = fork();
-			if (pid == 0)
-			{
-				execute_builtin(cmd);
-				exit(g_exit_status);
-			}
-			else if (pid < 0)
-				perror("fork");
-			else
-			{
-				waitpid(pid, &status, 0);
-				if (WIFEXITED(status))
-					g_exit_status = WEXITSTATUS(status);
-				else if (WIFSIGNALED(status))
-					g_exit_status = 128 + WTERMSIG(status);
-			}
-		}
+		execute_builtin(cmd);
 	}
 	else
 	{
 		pid = fork();
 		if (pid == 0)
 		{
+			close(original_stdin);
+			close(original_stdout);
 			execute_external(cmd);
+			cleanup_child_process(parser);
 			exit(g_exit_status);
 		}
 		else if (pid < 0)
@@ -106,6 +83,16 @@ void	execute_pipeline(t_parser *parser)
 	int		status;
 	int		i;
 
+	i = 0;
+	while (i < parser->cmd_count)
+	{
+		if (!parser->cmds[i].args || !parser->cmds[i].args[0])
+		{
+			g_exit_status = 2;
+			return ;
+		}
+		i++;
+	}
 	setup_pipes(parser);
 	i = 0;
 	while (i < parser->cmd_count)
@@ -122,6 +109,7 @@ void	execute_pipeline(t_parser *parser)
 				execute_builtin(&parser->cmds[i]);
 			else
 				execute_external(&parser->cmds[i]);
+			cleanup_child_process(parser);
 			exit(g_exit_status);
 		}
 		else if (pid < 0)
@@ -146,6 +134,11 @@ void	execute_external(t_cmd *cmd)
 	char	*exec_path;
 	char	**env;
 
+	if (!cmd || !cmd->args || !cmd->args[0])
+	{
+		g_exit_status = 127;
+		return ;
+	}
 	exec_path = find_executable(cmd->args[0]);
 	if (!exec_path)
 	{

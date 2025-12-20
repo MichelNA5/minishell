@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 15:02:33 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/19 13:16:58 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ static void	print_matches(char *dir_path, char *base_prefix)
 		if (ent->d_name[0] == '.')
 			continue ;
 		if (ft_strncmp(ent->d_name, base_prefix, ft_strlen(base_prefix)) == 0)
-			printf("%s\n", ent->d_name);
+			ft_putendl_fd(ent->d_name, STDOUT_FILENO);
 	}
 	closedir(dir);
 }
@@ -184,7 +184,7 @@ void	handle_tab(char *input, int *pos, char *prompt)
 		insert_str(input, pos, "/", prompt);
 	else if (matches > 1)
 	{
-		printf("\n");
+		write(STDOUT_FILENO, "\n", 1);
 		print_matches(dir_path, base_prefix);
 		refresh_line(input, *pos, prompt);
 	}
@@ -203,17 +203,18 @@ void	handle_up_arrow(char *input, int *pos, char *prompt)
 	if (line)
 	{
 		len = ft_strlen(input);
-		printf("\r%s", prompt);
+		write(STDOUT_FILENO, "\r", 1);
+		write(STDOUT_FILENO, prompt, ft_strlen(prompt));
 		while (len > 0)
 		{
-			printf(" ");
+			write(STDOUT_FILENO, " ", 1);
 			len--;
 		}
-		printf("\r%s", prompt);
+		write(STDOUT_FILENO, "\r", 1);
+		write(STDOUT_FILENO, prompt, ft_strlen(prompt));
 		ft_strlcpy(input, line, MAX_INPUT_SIZE);
 		*pos = ft_strlen(input);
-		printf("%s", input);
-		fflush(stdout);
+		write(STDOUT_FILENO, input, ft_strlen(input));
 	}
 }
 
@@ -226,28 +227,31 @@ void	handle_down_arrow(char *input, int *pos, char *prompt)
 	if (line)
 	{
 		len = ft_strlen(input);
-		printf("\r%s", prompt);
+		write(STDOUT_FILENO, "\r", 1);
+		write(STDOUT_FILENO, prompt, ft_strlen(prompt));
 		while (len > 0)
 		{
-			printf(" ");
+			write(STDOUT_FILENO, " ", 1);
 			len--;
 		}
-		printf("\r%s", prompt);
+		write(STDOUT_FILENO, "\r", 1);
+		write(STDOUT_FILENO, prompt, ft_strlen(prompt));
 		ft_strlcpy(input, line, MAX_INPUT_SIZE);
 		*pos = ft_strlen(input);
-		printf("%s", input);
-		fflush(stdout);
+		write(STDOUT_FILENO, input, ft_strlen(input));
 	}
 	else
 	{
 		len = ft_strlen(input);
-		printf("\r%s", prompt);
+		write(STDOUT_FILENO, "\r", 1);
+		write(STDOUT_FILENO, prompt, ft_strlen(prompt));
 		while (len > 0)
 		{
-			printf(" ");
+			write(STDOUT_FILENO, " ", 1);
 			len--;
 		}
-		printf("\r%s", prompt);
+		write(STDOUT_FILENO, "\r", 1);
+		write(STDOUT_FILENO, prompt, ft_strlen(prompt));
 		ft_memset(input, 0, MAX_INPUT_SIZE);
 		*pos = 0;
 	}
@@ -259,9 +263,8 @@ void	handle_left_arrow(char *input, int *pos, char *prompt)
 	(void)prompt;
 	if (*pos > 0)
 	{
-		printf("\b");
+		write(STDOUT_FILENO, "\b", 1);
 		(*pos)--;
-		fflush(stdout);
 	}
 }
 
@@ -273,9 +276,8 @@ void	handle_right_arrow(char *input, int *pos, char *prompt)
 	len = ft_strlen(input);
 	if (*pos < len)
 	{
-		printf("%c", input[*pos]);
+		write(STDOUT_FILENO, &input[*pos], 1);
 		(*pos)++;
-		fflush(stdout);
 	}
 }
 

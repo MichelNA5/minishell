@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/11 23:45:21 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/20 13:42:28 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,68 @@
 
 void    add_token(t_token **head, t_token **current, char *value,
 	t_token_type type);
+
+static void	print_syntax_error(const char *token)
+{
+	const char	*prefix;
+
+	prefix = "minishell: syntax error near unexpected token `";
+	if (!token)
+		token = "newline";
+	write(STDERR_FILENO, prefix, ft_strlen(prefix));
+	write(STDERR_FILENO, token, ft_strlen(token));
+	write(STDERR_FILENO, "'\n", 2);
+	g_exit_status = 2;
+}
+
+static int	validate_tokens_syntax(t_token *tokens)
+{
+	t_token	*cur;
+
+	if (!tokens)
+		return (0);
+	cur = tokens;
+	if (cur->type == PIPE)
+	{
+		print_syntax_error("|");
+		return (0);
+	}
+	while (cur)
+	{
+		if (cur->type == PIPE)
+		{
+			if (!cur->next)
+			{
+				print_syntax_error("|");
+				return (0);
+			}
+			if (cur->next->type == PIPE)
+			{
+				print_syntax_error("|");
+				return (0);
+			}
+		}
+		if (cur->type == REDIR_IN || cur->type == REDIR_OUT
+			|| cur->type == REDIR_APPEND || cur->type == REDIR_HEREDOC)
+		{
+			if (!cur->next)
+			{
+				print_syntax_error(NULL);
+				return (0);
+			}
+			if (cur->next->type == PIPE
+				|| cur->next->type == REDIR_IN || cur->next->type == REDIR_OUT
+				|| cur->next->type == REDIR_APPEND
+				|| cur->next->type == REDIR_HEREDOC)
+			{
+				print_syntax_error(cur->next->value);
+				return (0);
+			}
+		}
+		cur = cur->next;
+	}
+	return (1);
+}
 
 t_token	*tokenize(char *input)
 {
@@ -167,7 +229,8 @@ t_token	*handle_quotes(char *input, int *i, char quote)
 		j++;
 	if (!input[j])
 	{
-		printf("Error: unclosed quote\n");
+		write(STDERR_FILENO, "Error: unclosed quote\n",
+			ft_strlen("Error: unclosed quote\n"));
 		return NULL;
 	}
 	content = ft_substr(input, start, j - start);
@@ -192,6 +255,8 @@ t_parser	*parse_tokens(t_token *tokens)
 	t_token		*current;
 	int			cmd_count;
 
+	if (!validate_tokens_syntax(tokens))
+		return (NULL);
 	parser = malloc(sizeof(t_parser));
 	if (!parser)
 		return (NULL);
@@ -202,8 +267,13 @@ t_parser	*parse_tokens(t_token *tokens)
 		free(parser);
 		return (NULL);
 	}
+	ft_bzero(parser->cmds, sizeof(t_cmd) * cmd_count);
 	parser->cmd_count = cmd_count;
 	current = tokens;
-	parse_commands(parser, current);
+	if (!parse_commands(parser, current))
+	{
+		free_parser(parser);
+		return (NULL);
+	}
 	return (parser);
 }

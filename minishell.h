@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 15:02:33 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/20 13:40:49 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,19 +80,23 @@ extern int			g_signal_received;
 extern int			g_exit_status;
 extern int			g_cursor_pos;
 extern char			**g_env;
+extern int			g_should_exit;
+extern char			*g_current_line;
+extern t_token		*g_current_tokens;
 
 /* Main functions */
 int					main(int argc, char **argv, char **envp);
 void				minishell_loop(char **envp);
 void				cleanup_and_exit(void);
+void				cleanup_child_process(t_parser *parser);
 
 /* Parsing functions */
 t_token				*tokenize(char *input);
 t_token				*handle_quotes(char *input, int *i, char quote);
 t_token				*handle_word(char *input, int *i);
 t_parser			*parse_tokens(t_token *tokens);
-void				parse_commands(t_parser *parser, t_token *tokens);
-void				parse_redirection(t_parser *parser, int *cmd_idx, t_token **current);
+int					parse_commands(t_parser *parser, t_token *tokens);
+int					parse_redirection(t_parser *parser, int cmd_idx, t_token **current);
 void				free_parser(t_parser *parser);
 void				free_tokens(t_token *tokens);
 int					count_commands(t_token *tokens);

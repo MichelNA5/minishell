@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 14:34:59 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/19 13:38:35 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	builtin_env(t_cmd *cmd)
 	i = 0;
 	while (g_env && g_env[i])
 	{
-		printf("%s\n", g_env[i]);
+		ft_putendl_fd(g_env[i], STDOUT_FILENO);
 		i++;
 	}
 	return;
@@ -33,8 +33,9 @@ void	builtin_exit(t_cmd *cmd)
 	exit_code = 0;
 	if (cmd->args[1])
 		exit_code = ft_atoi(cmd->args[1]);
-	printf("exit\n");
-	exit(exit_code);
+	write(STDOUT_FILENO, "exit\n", 5);
+	g_exit_status = exit_code;
+	g_should_exit = 1;
 }
 
 void	print_env_vars(void)

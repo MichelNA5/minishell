@@ -69,7 +69,8 @@ void	set_env_var(char *name, char *value, char **env)
 		i++;
 	}
 	// Don't realloc environ - just print error
-	printf("minishell: export: cannot modify environment\n");
+	write(STDERR_FILENO, "minishell: export: cannot modify environment\n",
+		ft_strlen("minishell: export: cannot modify environment\n"));
 	free(new_var);
 }
 
@@ -115,10 +116,9 @@ void	setup_signals(void)
 void	sigint_handler(int sig)
 {
 	g_signal_received = sig;
-	printf("\n");
+	write(STDOUT_FILENO, "\n", 1);
 	// Simple prompt display without readline functions
-	printf("minishell$ ");
-	fflush(stdout);
+	write(STDOUT_FILENO, "minishell$ ", ft_strlen("minishell$ "));
 }
 
 void	sigquit_handler(int sig)

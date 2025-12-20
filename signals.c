@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 14:34:18 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/19 13:13:56 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,7 @@ void	setup_signals(void)
 void	sigint_handler(int sig)
 {
 	g_signal_received = sig;
-	printf("\n");
-	fflush(stdout);
+	write(STDOUT_FILENO, "\n", 1);
 }
 
 void	sigquit_handler(int sig)
