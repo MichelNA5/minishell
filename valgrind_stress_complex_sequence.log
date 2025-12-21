@@ -1,0 +1,33 @@
+==26371== Memcheck, a memory error detector
+==26371== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==26371== Using Valgrind-3.22.0 and LibVEX; rerun with -h for copyright info
+==26371== Command: ./minishell
+==26371== Parent PID: 25792
+==26371== 
+==26389== 
+==26389== HEAP SUMMARY:
+==26389==     in use at exit: 0 bytes in 0 blocks
+==26389==   total heap usage: 272 allocs, 272 frees, 31,841 bytes allocated
+==26389== 
+==26389== All heap blocks were freed -- no leaks are possible
+==26389== 
+==26389== For lists of detected and suppressed errors, rerun with: -s
+==26389== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==26390== 
+==26390== HEAP SUMMARY:
+==26390==     in use at exit: 0 bytes in 0 blocks
+==26390==   total heap usage: 302 allocs, 302 frees, 44,473 bytes allocated
+==26390== 
+==26390== All heap blocks were freed -- no leaks are possible
+==26390== 
+==26390== For lists of detected and suppressed errors, rerun with: -s
+==26390== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==26371== 
+==26371== HEAP SUMMARY:
+==26371==     in use at exit: 0 bytes in 0 blocks
+==26371==   total heap usage: 130 allocs, 130 frees, 48,348 bytes allocated
+==26371== 
+==26371== All heap blocks were freed -- no leaks are possible
+==26371== 
+==26371== For lists of detected and suppressed errors, rerun with: -s
+==26371== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

@@ -16,8 +16,8 @@
 
 void	setup_pipes(t_parser *parser)
 {
-	int i;
-	int pipe_fds[2];
+	int	i;
+	int	pipe_fds[2];
 
 	i = 0;
 	while (i < parser->cmd_count)
@@ -32,7 +32,7 @@ void	setup_pipes(t_parser *parser)
 		if (pipe(pipe_fds) == -1)
 		{
 			perror("pipe");
-			return;
+			return ;
 		}
 		parser->cmds[i].pipe_out = pipe_fds[1];
 		parser->cmds[i + 1].pipe_in = pipe_fds[0];

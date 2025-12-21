@@ -12,7 +12,27 @@
 
 #include "minishell.h"
 
-char	*expand_env_vars(char *input)
+static char	*do_expansion(char *exp, int *i, t_shell *shell)
+{
+	char	*var_name;
+	char	*var_value;
+	int		var_len;
+	char	*result;
+
+	var_name = get_var_name(exp, *i + 1);
+	var_value = get_var_value(var_name, shell);
+	var_len = ft_strlen(var_name);
+	result = replace_env_var(exp, *i, var_len + 1, var_value);
+	if (var_value)
+		free(var_value);
+	free(var_name);
+	if (!result)
+		return (NULL);
+	*i += ft_strlen(var_value);
+	return (result);
+}
+
+char	*expand_env_vars(char *input, t_shell *shell)
 {
 	char	*expanded_input;
 	int		i;
@@ -27,17 +47,9 @@ char	*expand_env_vars(char *input)
 			in_single_quote = !in_single_quote;
 		if (expanded_input[i] == '$' && !in_single_quote)
 		{
-			char	*var_name = get_var_name(expanded_input, i + 1);
-			char	*var_value = get_var_value(var_name);
-			int		var_len = ft_strlen(var_name);
-
-			expanded_input = replace_env_var(expanded_input, i, var_len + 1, var_value);
-			if (var_value)
-				free(var_value);
-			free(var_name);
+			expanded_input = do_expansion(expanded_input, &i, shell);
 			if (!expanded_input)
 				return (NULL);
-			i += ft_strlen(var_value);
 		}
 		else
 			i++;
@@ -99,16 +111,16 @@ char	*get_var_name(char *input, int start)
 	return (var_name);
 }
 
-char	*get_var_value(char *var_name)
+char	*get_var_value(char *var_name, t_shell *shell)
 {
 	char	*value;
 
 	if (ft_strcmp(var_name, "?") == 0)
 	{
-		value = ft_itoa(g_exit_status);
+		value = ft_itoa(shell->exit_status);
 		return (value);
 	}
-	value = get_env_var(var_name, g_env);
+	value = get_env_var(var_name, shell->env);
 	if (value)
 		return (ft_strdup(value));
 	return (ft_strdup(""));

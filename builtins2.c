@@ -6,27 +6,40 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/19 13:38:35 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/21 18:24:51 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	builtin_env(t_cmd *cmd)
+void	builtin_unset(t_cmd *cmd, t_shell *shell)
+{
+	int	i;
+
+	if (!cmd->args[1])
+		return ;
+	i = 1;
+	while (cmd->args[i])
+	{
+		unset_env_var(cmd->args[i], shell);
+		i++;
+	}
+}
+
+void	builtin_env(t_cmd *cmd, t_shell *shell)
 {
 	int	i;
 
 	(void)cmd;
 	i = 0;
-	while (g_env && g_env[i])
+	while (shell->env && shell->env[i])
 	{
-		ft_putendl_fd(g_env[i], STDOUT_FILENO);
+		ft_putendl_fd(shell->env[i], STDOUT_FILENO);
 		i++;
 	}
-	return;
 }
 
-void	builtin_exit(t_cmd *cmd)
+void	builtin_exit(t_cmd *cmd, t_shell *shell)
 {
 	int	exit_code;
 
@@ -34,18 +47,18 @@ void	builtin_exit(t_cmd *cmd)
 	if (cmd->args[1])
 		exit_code = ft_atoi(cmd->args[1]);
 	write(STDOUT_FILENO, "exit\n", 5);
-	g_exit_status = exit_code;
-	g_should_exit = 1;
+	shell->exit_status = exit_code;
+	shell->should_exit = 1;
 }
 
-void	print_env_vars(void)
+void	print_env_vars(t_shell *shell)
 {
-	int			i;
+	int	i;
 
 	i = 0;
-	while (g_env && g_env[i])
+	while (shell->env && shell->env[i])
 	{
-		printf("declare -x %s\n", g_env[i]);
+		printf("declare -x %s\n", shell->env[i]);
 		i++;
 	}
 }

@@ -12,11 +12,12 @@
 
 #include "minishell.h"
 
-void	builtin_echo(t_cmd *cmd)
+void	builtin_echo(t_cmd *cmd, t_shell *shell)
 {
 	int	i;
 	int	newline;
 
+	(void)shell;
 	i = 1;
 	newline = 1;
 	if (cmd->args[1] && ft_strcmp(cmd->args[1], "-n") == 0)
@@ -33,64 +34,70 @@ void	builtin_echo(t_cmd *cmd)
 	}
 	if (newline)
 		write(STDOUT_FILENO, "\n", 1);
-	(void)cmd;
-	return;
 }
 
-void	builtin_cd(t_cmd *cmd)
+static char	*get_cd_path(t_cmd *cmd, t_shell *shell)
+{
+	char	*path;
+
+	if (!cmd->args[1])
+	{
+		path = get_env_var("HOME", shell->env);
+		if (!path)
+		{
+			write(STDERR_FILENO, "minishell: cd: HOME not set\n",
+				ft_strlen("minishell: cd: HOME not set\n"));
+			return (NULL);
+		}
+		return (path);
+	}
+	return (cmd->args[1]);
+}
+
+void	builtin_cd(t_cmd *cmd, t_shell *shell)
 {
 	char	*path;
 	char	*old_pwd;
 	char	*new_pwd;
 
-	if (!cmd->args[1])
-	{
-		path = get_env_var("HOME", NULL);
-		if (!path)
-		{
-			write(STDERR_FILENO, "minishell: cd: HOME not set\n",
-				ft_strlen("minishell: cd: HOME not set\n"));
-			return;
-		}
-	}
-	else
-		path = cmd->args[1];
+	path = get_cd_path(cmd, shell);
+	if (!path)
+		return ;
 	old_pwd = getcwd(NULL, 0);
 	if (chdir(path) == -1)
 	{
 		perror("cd");
 		free(old_pwd);
-		return;
+		return ;
 	}
 	new_pwd = getcwd(NULL, 0);
 	if (old_pwd)
-		set_env_var("OLDPWD", old_pwd);
+		set_env_var("OLDPWD", old_pwd, shell);
 	if (new_pwd)
-		set_env_var("PWD", new_pwd);
+		set_env_var("PWD", new_pwd, shell);
 	if (old_pwd)
 		free(old_pwd);
 	if (new_pwd)
 		free(new_pwd);
-	return;
 }
 
-void	builtin_pwd(t_cmd *cmd)
+void	builtin_pwd(t_cmd *cmd, t_shell *shell)
 {
 	char	*pwd;
 
+	(void)cmd;
+	(void)shell;
 	pwd = getcwd(NULL, 0);
 	if (!pwd)
 	{
 		perror("pwd");
-		return;
+		return ;
 	}
 	ft_putendl_fd(pwd, STDOUT_FILENO);
 	free(pwd);
-	(void)cmd;
-	return;
 }
 
-void	builtin_export(t_cmd *cmd)
+void	builtin_export(t_cmd *cmd, t_shell *shell)
 {
 	int		i;
 	char	*name;
@@ -99,8 +106,8 @@ void	builtin_export(t_cmd *cmd)
 
 	if (!cmd->args[1])
 	{
-		print_env_vars();
-		return;
+		print_env_vars(shell);
+		return ;
 	}
 	i = 1;
 	while (cmd->args[i])
@@ -111,24 +118,8 @@ void	builtin_export(t_cmd *cmd)
 			*equal = '\0';
 			name = cmd->args[i];
 			value = equal + 1;
-			set_env_var(name, value);
+			set_env_var(name, value, shell);
 		}
 		i++;
 	}
-	return;
-}
-
-void	builtin_unset(t_cmd *cmd)
-{
-	int	i;
-
-	if (!cmd->args[1])
-		return;
-	i = 1;
-	while (cmd->args[i])
-	{
-		unset_env_var(cmd->args[i]);
-		i++;
-	}
-	return;
 }
