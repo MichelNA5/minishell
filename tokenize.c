@@ -6,11 +6,24 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2025/12/21 18:42:58 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	skip_spaces(char *input, int *i, int len)
+{
+	int	had_space;
+
+	had_space = 0;
+	while (*i < len && (input[*i] == ' ' || input[*i] == '\t'))
+	{
+		had_space = 1;
+		(*i)++;
+	}
+	return (had_space);
+}
 
 t_token	*tokenize(char *input)
 {
@@ -29,8 +42,7 @@ t_token	*tokenize(char *input)
 	ctx.current = &current;
 	while (i < ctx.len)
 	{
-		while (i < ctx.len && (input[i] == ' ' || input[i] == '\t'))
-			i++;
+		ctx.separated = skip_spaces(input, &i, ctx.len);
 		if (i >= ctx.len)
 			break ;
 		if (!process_token(&ctx))
@@ -39,8 +51,7 @@ t_token	*tokenize(char *input)
 	return (head);
 }
 
-void	add_token(t_token **head, t_token **current, char *value,
-	t_token_type type)
+void	add_token(t_token_ctx *ctx, char *value, t_token_type type)
 {
 	t_token	*new;
 
@@ -49,16 +60,17 @@ void	add_token(t_token **head, t_token **current, char *value,
 		return ;
 	new->value = ft_strdup(value);
 	new->type = type;
+	new->separated = ctx->separated;
 	new->next = NULL;
-	if (!*head)
+	if (!*ctx->head)
 	{
-		*head = new;
-		*current = new;
+		*ctx->head = new;
+		*ctx->current = new;
 	}
 	else
 	{
-		(*current)->next = new;
-		*current = new;
+		(*ctx->current)->next = new;
+		*ctx->current = new;
 	}
 }
 

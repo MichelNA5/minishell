@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by mnaouss           #+#    #+#             */
-/*   Updated: 2025/12/21 18:40:42 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,13 +16,13 @@ static int	handle_symbol_token(t_token_ctx *ctx)
 {
 	if (ctx->input[*ctx->i] == '|')
 	{
-		add_token(ctx->head, ctx->current, "|", PIPE);
+		add_token(ctx, "|", PIPE);
 		(*ctx->i)++;
 		return (1);
 	}
 	if (ctx->input[*ctx->i] == '$')
 	{
-		add_token(ctx->head, ctx->current, "$", DOLLAR);
+		add_token(ctx, "$", DOLLAR);
 		(*ctx->i)++;
 		return (1);
 	}
@@ -40,9 +40,9 @@ static int	handle_quote_token(t_token_ctx *ctx, char quote)
 		return (0);
 	}
 	if (quote == '\'')
-		add_token(ctx->head, ctx->current, qt->value, QUOTE_SINGLE);
+		add_token(ctx, qt->value, QUOTE_SINGLE);
 	else
-		add_token(ctx->head, ctx->current, qt->value, QUOTE_DOUBLE);
+		add_token(ctx, qt->value, QUOTE_DOUBLE);
 	free(qt->value);
 	free(qt);
 	return (1);
@@ -55,7 +55,7 @@ static int	handle_word_token(t_token_ctx *ctx)
 	w = handle_word(ctx->input, ctx->i);
 	if (w)
 	{
-		add_token(ctx->head, ctx->current, w->value, WORD);
+		add_token(ctx, w->value, WORD);
 		free(w->value);
 		free(w);
 	}
@@ -64,30 +64,28 @@ static int	handle_word_token(t_token_ctx *ctx)
 
 static void	handle_redir_tokens(t_token_ctx *ctx)
 {
-	if (ctx->input[*ctx->i] == '<' && *ctx->i + 1 < ctx->len
-		&& ctx->input[*ctx->i + 1] == '<')
+	if (ctx->input[*ctx->i] == '<')
 	{
-		add_token(ctx->head, ctx->current, "<<", REDIR_HEREDOC);
-		*ctx->i += 2;
-	}
-	else if (ctx->input[*ctx->i] == '>')
-	{
-		if (*ctx->i + 1 < ctx->len && ctx->input[*ctx->i + 1] == '>')
+		if (*ctx->i + 1 < ctx->len && ctx->input[*ctx->i + 1] == '<')
 		{
-			add_token(ctx->head, ctx->current, ">>", REDIR_APPEND);
+			add_token(ctx, "<<", REDIR_HEREDOC);
 			*ctx->i += 2;
 		}
 		else
 		{
-			add_token(ctx->head, ctx->current, ">", REDIR_OUT);
+			add_token(ctx, "<", REDIR_IN);
 			(*ctx->i)++;
 		}
+		return ;
 	}
-	else if (ctx->input[*ctx->i] == '<')
+	if (*ctx->i + 1 < ctx->len && ctx->input[*ctx->i + 1] == '>')
 	{
-		add_token(ctx->head, ctx->current, "<", REDIR_IN);
-		(*ctx->i)++;
+		add_token(ctx, ">>", REDIR_APPEND);
+		*ctx->i += 2;
+		return ;
 	}
+	add_token(ctx, ">", REDIR_OUT);
+	(*ctx->i)++;
 }
 
 int	process_token(t_token_ctx *ctx)

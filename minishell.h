@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/21 18:54:10 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 02:14:56 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ typedef struct s_token
 {
 	t_token_type	type;
 	char			*value;
+	int				separated;
 	struct s_token	*next;
 }	t_token;
 
@@ -102,6 +103,7 @@ typedef struct s_token_ctx
 	char			*input;
 	int				*i;
 	int				len;
+	int				separated;
 	t_token			**head;
 	t_token			**current;
 }	t_token_ctx;
@@ -127,8 +129,7 @@ t_token				*tokenize(char *input);
 t_token				*handle_quotes(char *input, int *i, char quote);
 t_token				*handle_word(char *input, int *i);
 t_parser			*parse_tokens(t_token *tokens, t_shell *shell);
-void				add_token(t_token **head, t_token **current, char *value,
-						t_token_type type);
+void				add_token(t_token_ctx *ctx, char *value, t_token_type type);
 int					process_token(t_token_ctx *ctx);
 int					validate_tokens_syntax(t_token *tokens);
 int					parse_commands(t_parser *parser, t_token *tokens,

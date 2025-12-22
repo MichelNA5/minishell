@@ -6,7 +6,8 @@ SRCS = main.c main_helpers.c execution.c execution2.c execution3.c \
 	parsing.c parsing2.c parsing3.c parsing4.c parsing_syntax.c \
 	parsing_counts.c parsing_init.c \
 	tokenize.c token_handlers.c \
-       parsing_helpers.c pipes.c redirections.c redirections_helper.c \
+	   parsing_helpers.c parsing_redir_operand.c pipes.c redirections.c \
+	   redirections_helper.c \
        env.c env_helpers.c signals.c input_history.c input_history2.c \
 	history.c input_history_arrows.c input_history_helpers.c \
 	input_non_tty.c input_keys.c input_loop.c \

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   env_expansion.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mmakhlou <mmakhlou@student.42.fr>          +#+  +:+       +#+        */
+/*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2024/01/01 00:00:00 by mmakhlou         ###   ########.fr       */
+/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,18 +17,25 @@ static char	*do_expansion(char *exp, int *i, t_shell *shell)
 	char	*var_name;
 	char	*var_value;
 	int		var_len;
+	int		value_len;
 	char	*result;
 
 	var_name = get_var_name(exp, *i + 1);
 	var_value = get_var_value(var_name, shell);
 	var_len = ft_strlen(var_name);
+	value_len = 0;
+	if (var_value)
+		value_len = ft_strlen(var_value);
 	result = replace_env_var(exp, *i, var_len + 1, var_value);
 	if (var_value)
 		free(var_value);
 	free(var_name);
 	if (!result)
+	{
+		free(exp);
 		return (NULL);
-	*i += ft_strlen(var_value);
+	}
+	*i += value_len;
 	return (result);
 }
 

@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/20 13:42:28 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,9 @@ void	execute_external(t_cmd *cmd, t_shell *shell)
 	exec_path = find_executable(cmd->args[0], shell);
 	if (!exec_path)
 	{
-		printf("minishell: %s: command not found\n", cmd->args[0]);
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+		ft_putendl_fd(": command not found", STDERR_FILENO);
 		shell->exit_status = 127;
 		return ;
 	}

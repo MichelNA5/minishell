@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/21 18:24:51 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,8 @@ void	print_env_vars(t_shell *shell)
 	i = 0;
 	while (shell->env && shell->env[i])
 	{
-		printf("declare -x %s\n", shell->env[i]);
+		ft_putstr_fd("declare -x ", STDOUT_FILENO);
+		ft_putendl_fd(shell->env[i], STDOUT_FILENO);
 		i++;
 	}
 }
