@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 02:14:56 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 13:19:54 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,7 +151,7 @@ void				execute_command(t_cmd *cmd, t_parser *parser,
 void				execute_commands(t_parser *parser, t_shell *shell);
 void				execute_pipeline(t_parser *parser, t_shell *shell);
 void				execute_external(t_cmd *cmd, t_shell *shell);
-void				execute_builtin(t_cmd *cmd, t_shell *shell);
+int					execute_builtin(t_cmd *cmd, t_shell *shell);
 int					is_builtin(char *cmd);
 char				*find_executable(char *cmd, t_shell *shell);
 int					setup_redirections(t_cmd *cmd, t_shell *shell);
@@ -161,14 +161,22 @@ void				setup_pipes(t_parser *parser);
 void				close_pipes(t_parser *parser);
 
 /* Builtin functions */
-void				builtin_echo(t_cmd *cmd, t_shell *shell);
-void				builtin_cd(t_cmd *cmd, t_shell *shell);
-void				builtin_pwd(t_cmd *cmd, t_shell *shell);
-void				builtin_export(t_cmd *cmd, t_shell *shell);
-void				builtin_unset(t_cmd *cmd, t_shell *shell);
-void				builtin_env(t_cmd *cmd, t_shell *shell);
-void				builtin_exit(t_cmd *cmd, t_shell *shell);
+int					builtin_echo(t_cmd *cmd, t_shell *shell);
+int					builtin_cd(t_cmd *cmd, t_shell *shell);
+int					builtin_pwd(t_cmd *cmd, t_shell *shell);
+int					builtin_export(t_cmd *cmd, t_shell *shell);
+int					builtin_unset(t_cmd *cmd, t_shell *shell);
+int					builtin_env(t_cmd *cmd, t_shell *shell);
+int					builtin_exit(t_cmd *cmd, t_shell *shell);
 void				print_env_vars(t_shell *shell);
+
+/* Builtin helper functions */
+int					is_valid_identifier(const char *name);
+void				print_export_error(char *arg);
+int					process_export_arg(char *arg, t_shell *shell);
+int					is_numeric_str(const char *s);
+int					parse_ll(const char *s, long long *out);
+void				print_exit_numeric_error(char *arg);
 
 /* Environment functions */
 char				**copy_env(char **envp);

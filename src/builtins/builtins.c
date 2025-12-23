@@ -6,13 +6,13 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/22 13:21:17 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	builtin_echo(t_cmd *cmd, t_shell *shell)
+int	builtin_echo(t_cmd *cmd, t_shell *shell)
 {
 	int	i;
 	int	newline;
@@ -34,6 +34,7 @@ void	builtin_echo(t_cmd *cmd, t_shell *shell)
 	}
 	if (newline)
 		write(STDOUT_FILENO, "\n", 1);
+	return (0);
 }
 
 static char	*get_cd_path(t_cmd *cmd, t_shell *shell)
@@ -54,23 +55,8 @@ static char	*get_cd_path(t_cmd *cmd, t_shell *shell)
 	return (cmd->args[1]);
 }
 
-void	builtin_cd(t_cmd *cmd, t_shell *shell)
+static void	update_pwd_vars(char *old_pwd, char *new_pwd, t_shell *shell)
 {
-	char	*path;
-	char	*old_pwd;
-	char	*new_pwd;
-
-	path = get_cd_path(cmd, shell);
-	if (!path)
-		return ;
-	old_pwd = getcwd(NULL, 0);
-	if (chdir(path) == -1)
-	{
-		perror("cd");
-		free(old_pwd);
-		return ;
-	}
-	new_pwd = getcwd(NULL, 0);
 	if (old_pwd)
 		set_env_var("OLDPWD", old_pwd, shell);
 	if (new_pwd)
@@ -81,45 +67,50 @@ void	builtin_cd(t_cmd *cmd, t_shell *shell)
 		free(new_pwd);
 }
 
-void	builtin_pwd(t_cmd *cmd, t_shell *shell)
+int	builtin_cd(t_cmd *cmd, t_shell *shell)
 {
-	char	*pwd;
+	char	*path;
+	char	*old_pwd;
+	char	*new_pwd;
 
-	(void)cmd;
-	(void)shell;
-	pwd = getcwd(NULL, 0);
-	if (!pwd)
+	if (cmd->args[1] && cmd->args[2])
 	{
-		perror("pwd");
-		return ;
+		write(STDERR_FILENO, "minishell: cd: too many arguments\n",
+			ft_strlen("minishell: cd: too many arguments\n"));
+		return (1);
 	}
-	ft_putendl_fd(pwd, STDOUT_FILENO);
-	free(pwd);
+	path = get_cd_path(cmd, shell);
+	if (!path)
+		return (1);
+	old_pwd = getcwd(NULL, 0);
+	if (chdir(path) == -1)
+	{
+		perror("minishell: cd");
+		free(old_pwd);
+		return (1);
+	}
+	new_pwd = getcwd(NULL, 0);
+	update_pwd_vars(old_pwd, new_pwd, shell);
+	return (0);
 }
 
-void	builtin_export(t_cmd *cmd, t_shell *shell)
+int	builtin_export(t_cmd *cmd, t_shell *shell)
 {
-	int		i;
-	char	*name;
-	char	*value;
-	char	*equal;
+	int	i;
+	int	status;
 
 	if (!cmd->args[1])
 	{
 		print_env_vars(shell);
-		return ;
+		return (0);
 	}
+	status = 0;
 	i = 1;
 	while (cmd->args[i])
 	{
-		equal = ft_strchr(cmd->args[i], '=');
-		if (equal)
-		{
-			*equal = '\0';
-			name = cmd->args[i];
-			value = equal + 1;
-			set_env_var(name, value, shell);
-		}
+		if (process_export_arg(cmd->args[i], shell))
+			status = 1;
 		i++;
 	}
+	return (status);
 }

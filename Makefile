@@ -1,19 +1,39 @@
 NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
-SRCS = main.c main_helpers.c execution.c execution2.c execution3.c \
-	execution_dispatch.c builtins.c builtins2.c builtins_dispatch.c \
-	parsing.c parsing2.c parsing3.c parsing4.c parsing_syntax.c \
-	parsing_counts.c parsing_init.c \
-	tokenize.c token_handlers.c \
-	   parsing_helpers.c parsing_redir_operand.c pipes.c redirections.c \
-	   redirections_helper.c \
-       env.c env_helpers.c signals.c input_history.c input_history2.c \
-	history.c input_history_arrows.c input_history_helpers.c \
-	input_non_tty.c input_keys.c input_loop.c \
-	tab_completion.c tab_completion_helpers.c \
-       tab_completion_utils.c env_expansion.c
-OBJS = $(SRCS:.c=.o)
+
+SRC_DIR = src
+INC_DIR = include
+OBJ_DIR = obj
+
+SRCS = $(SRC_DIR)/main/main.c $(SRC_DIR)/main/main_helpers.c \
+	$(SRC_DIR)/execution/execution.c $(SRC_DIR)/execution/execution2.c \
+	$(SRC_DIR)/execution/execution3.c $(SRC_DIR)/execution/execution_dispatch.c \
+	$(SRC_DIR)/execution/pipes.c \
+	$(SRC_DIR)/builtins/builtins.c $(SRC_DIR)/builtins/builtins2.c \
+	$(SRC_DIR)/builtins/builtins_dispatch.c \
+	$(SRC_DIR)/builtins/builtins_export_helpers.c \
+	$(SRC_DIR)/builtins/builtins_exit_helpers.c \
+	$(SRC_DIR)/builtins/builtins_pwd_env.c \
+	$(SRC_DIR)/parsing/parsing.c $(SRC_DIR)/parsing/parsing2.c \
+	$(SRC_DIR)/parsing/parsing3.c $(SRC_DIR)/parsing/parsing4.c \
+	$(SRC_DIR)/parsing/parsing_syntax.c $(SRC_DIR)/parsing/parsing_counts.c \
+	$(SRC_DIR)/parsing/parsing_init.c $(SRC_DIR)/parsing/parsing_helpers.c \
+	$(SRC_DIR)/parsing/parsing_redir_operand.c \
+	$(SRC_DIR)/tokenize/tokenize.c $(SRC_DIR)/tokenize/token_handlers.c \
+	$(SRC_DIR)/redirections/redirections.c $(SRC_DIR)/redirections/redirections_helper.c \
+	$(SRC_DIR)/env/env.c $(SRC_DIR)/env/env_helpers.c $(SRC_DIR)/env/env_expansion.c \
+	$(SRC_DIR)/signals/signals.c \
+	$(SRC_DIR)/input/history.c $(SRC_DIR)/input/input_history.c \
+	$(SRC_DIR)/input/input_history2.c $(SRC_DIR)/input/input_history_arrows.c \
+	$(SRC_DIR)/input/input_history_helpers.c $(SRC_DIR)/input/input_non_tty.c \
+	$(SRC_DIR)/input/input_keys.c $(SRC_DIR)/input/input_loop.c \
+	$(SRC_DIR)/tab_completion/tab_completion.c \
+	$(SRC_DIR)/tab_completion/tab_completion_helpers.c \
+	$(SRC_DIR)/tab_completion/tab_completion_utils.c
+
+OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+
 LIBFT_DIR = libft
 LIBFT_A = $(LIBFT_DIR)/libft.a
 
@@ -25,11 +45,12 @@ $(NAME): $(OBJS) $(LIBFT_A)
 $(LIBFT_A):
 	make -C $(LIBFT_DIR)
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -I. -I$(INC_DIR) -I$(LIBFT_DIR) -c $< -o $@
 
 clean:
-	rm -f $(OBJS)
+	rm -rf $(OBJ_DIR)
 	make -C $(LIBFT_DIR) clean
 
 fclean: clean
