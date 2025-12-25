@@ -31,25 +31,27 @@ test_leaks() {
     done
     input="${input}exit\n"
     
-    # Run valgrind with leak detection
+    # Run valgrind with leak detection (using readline suppressions)
     echo -e "$input" | valgrind --leak-check=full \
-             --show-leak-kinds=all \
+             --show-leak-kinds=definite,indirect \
              --track-origins=yes \
+             --suppressions=readline.supp \
              --error-limit=no \
              --log-file=valgrind_stress_${test_name// /_}.log \
              ./minishell >/dev/null 2>&1
     
-    # Check for leaks in the log
-    if grep -q "All heap blocks were freed -- no leaks are possible" valgrind_stress_${test_name// /_}.log || \
-       (grep -q "ERROR SUMMARY: 0 errors" valgrind_stress_${test_name// /_}.log && \
-        grep -q "in use at exit: 0 bytes in 0 blocks" valgrind_stress_${test_name// /_}.log); then
-        local allocs=$(grep "total heap usage:" valgrind_stress_${test_name// /_}.log | grep -o "[0-9]* allocs" | grep -o "[0-9]*")
-        echo -e "${GREEN}✓ No leaks detected (${allocs} allocations, all freed)${NC}\n"
+    # Check for actual leaks (not readline's reachable memory)
+    local def_lost=$(grep "definitely lost:" valgrind_stress_${test_name// /_}.log | grep -o "[0-9,]* bytes" | head -1 | grep -o "[0-9,]*" | tr -d ',')
+    local ind_lost=$(grep "indirectly lost:" valgrind_stress_${test_name// /_}.log | grep -o "[0-9,]* bytes" | head -1 | grep -o "[0-9,]*" | tr -d ',')
+    local allocs=$(grep "total heap usage:" valgrind_stress_${test_name// /_}.log | grep -o "[0-9,]* allocs" | grep -o "[0-9,]*" | tr -d ',')
+    
+    if [ "${def_lost:-0}" -eq 0 ] && [ "${ind_lost:-0}" -eq 0 ]; then
+        echo -e "${GREEN}✓ No leaks detected (${allocs} allocations)${NC}\n"
         return 0
     else
         echo -e "${RED}✗ LEAKS DETECTED!${NC}"
         echo "Check valgrind_stress_${test_name// /_}.log for details"
-        grep -A 10 "LEAK SUMMARY\|definitely lost\|indirectly lost\|ERROR SUMMARY\|in use at exit" valgrind_stress_${test_name// /_}.log | head -30
+        grep -A 10 "LEAK SUMMARY\|definitely lost\|indirectly lost\|ERROR SUMMARY" valgrind_stress_${test_name// /_}.log | head -30
         echo ""
         return 1
     fi

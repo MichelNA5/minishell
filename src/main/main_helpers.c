@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2025/12/21 18:48:49 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/25 16:29:39 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ char	*build_prompt(void)
 
 void	cleanup_and_exit(t_shell *shell)
 {
-	free_history(shell);
+	rl_clear_history();
 	free_array(shell->env);
 }
 

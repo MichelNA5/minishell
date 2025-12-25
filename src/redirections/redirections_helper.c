@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2025/12/20 00:00:00 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/25 16:29:39 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,10 +79,11 @@ void	handle_heredoc(char *delimiter, t_shell *shell)
 	char	*line;
 	int		fd[2];
 
+	(void)shell;
 	pipe(fd);
 	while (1)
 	{
-		line = enhanced_readline("> ", shell);
+		line = readline("> ");
 		if (!line || ft_strcmp(line, delimiter) == 0)
 		{
 			free(line);

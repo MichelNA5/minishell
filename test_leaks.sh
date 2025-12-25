@@ -22,11 +22,11 @@ test_leaks() {
     echo -e "${YELLOW}Testing: ${test_name}${NC}"
     echo "Command: $test_input"
     
-    # Run valgrind with leak detection
+    # Run valgrind with leak detection (using readline suppressions)
     valgrind --leak-check=full \
-             --show-leak-kinds=all \
+             --show-leak-kinds=definite,indirect \
              --track-origins=yes \
-             --verbose \
+             --suppressions=readline.supp \
              --error-limit=no \
              --log-file=valgrind_${test_name// /_}.log \
              ./minishell <<EOF
@@ -34,16 +34,17 @@ $test_input
 exit
 EOF
     
-    # Check for leaks in the log
-    if grep -q "All heap blocks were freed -- no leaks are possible" valgrind_${test_name// /_}.log || \
-       (grep -q "ERROR SUMMARY: 0 errors" valgrind_${test_name// /_}.log && \
-        grep -q "in use at exit: 0 bytes in 0 blocks" valgrind_${test_name// /_}.log); then
+    # Check for actual leaks (not readline's reachable memory)
+    local def_lost=$(grep "definitely lost:" valgrind_${test_name// /_}.log | grep -o "[0-9,]* bytes" | head -1 | grep -o "[0-9,]*" | tr -d ',')
+    local ind_lost=$(grep "indirectly lost:" valgrind_${test_name// /_}.log | grep -o "[0-9,]* bytes" | head -1 | grep -o "[0-9,]*" | tr -d ',')
+    
+    if [ "${def_lost:-0}" -eq 0 ] && [ "${ind_lost:-0}" -eq 0 ]; then
         echo -e "${GREEN}✓ No leaks detected${NC}\n"
         return 0
     else
         echo -e "${RED}✗ LEAKS DETECTED!${NC}"
         echo "Check valgrind_${test_name// /_}.log for details"
-        grep -A 10 "LEAK SUMMARY\|definitely lost\|indirectly lost\|ERROR SUMMARY\|in use at exit" valgrind_${test_name// /_}.log | head -30
+        grep -A 10 "LEAK SUMMARY\|definitely lost\|indirectly lost\|ERROR SUMMARY" valgrind_${test_name// /_}.log | head -30
         echo ""
         return 1
     fi

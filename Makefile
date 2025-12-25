@@ -24,13 +24,7 @@ SRCS = $(SRC_DIR)/main/main.c $(SRC_DIR)/main/main_helpers.c \
 	$(SRC_DIR)/redirections/redirections.c $(SRC_DIR)/redirections/redirections_helper.c \
 	$(SRC_DIR)/env/env.c $(SRC_DIR)/env/env_helpers.c $(SRC_DIR)/env/env_expansion.c \
 	$(SRC_DIR)/signals/signals.c \
-	$(SRC_DIR)/input/history.c $(SRC_DIR)/input/input_history.c \
-	$(SRC_DIR)/input/input_history2.c $(SRC_DIR)/input/input_history_arrows.c \
-	$(SRC_DIR)/input/input_history_helpers.c $(SRC_DIR)/input/input_non_tty.c \
-	$(SRC_DIR)/input/input_keys.c $(SRC_DIR)/input/input_loop.c \
-	$(SRC_DIR)/tab_completion/tab_completion.c \
-	$(SRC_DIR)/tab_completion/tab_completion_helpers.c \
-	$(SRC_DIR)/tab_completion/tab_completion_utils.c
+	$(SRC_DIR)/input/display.c
 
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
@@ -40,7 +34,7 @@ LIBFT_A = $(LIBFT_DIR)/libft.a
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT_A)
-	$(CC) $(OBJS) $(LIBFT_A) -o $(NAME)
+	$(CC) $(OBJS) $(LIBFT_A) -lreadline -o $(NAME)
 
 $(LIBFT_A):
 	make -C $(LIBFT_DIR)

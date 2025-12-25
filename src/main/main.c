@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/21 18:48:38 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/25 16:29:39 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,9 @@ int	main(int argc, char **argv, char **envp)
 	shell.env = copy_env(envp);
 	shell.exit_status = 0;
 	shell.should_exit = 0;
-	shell.cursor_pos = 0;
 	shell.current_line = NULL;
 	shell.current_tokens = NULL;
 	setup_signals();
-	init_history(&shell);
 	if (argc > 1)
 		display_welcome(argv[1]);
 	minishell_loop(&shell);
@@ -42,7 +40,7 @@ static void	process_line(char *line, t_shell *shell)
 	t_token		*tokens;
 	t_parser	*parser;
 
-	add_history_entry(shell, line);
+	add_history(line);
 	tokens = tokenize(line);
 	shell->current_tokens = tokens;
 	if (tokens)
@@ -67,7 +65,7 @@ void	minishell_loop(t_shell *shell)
 	{
 		shell->should_exit = 0;
 		prompt = build_prompt();
-		line = enhanced_readline(prompt, shell);
+		line = readline(prompt);
 		shell->current_line = line;
 		free(prompt);
 		if (!line)

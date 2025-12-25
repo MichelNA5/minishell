@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/25 23:17:46 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,6 @@ void	sigint_handler(int sig)
 void	sigquit_handler(int sig)
 {
 	g_signal_received = sig;
-}
-
-void	print_error(char *msg)
-{
-	ft_putstr_fd("minishell: ", STDERR_FILENO);
-	ft_putendl_fd(msg, STDERR_FILENO);
 }
 
 void	free_array(char **array)

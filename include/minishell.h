@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 13:19:54 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/25 23:17:46 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,12 @@
 # include <fcntl.h>
 # include <signal.h>
 # include <errno.h>
-# include <termios.h>
-
-# include <dirent.h>
-# include <sys/ioctl.h>
+# include <readline/readline.h>
+# include <readline/history.h>
 # include "libft/libft.h"
 
-# define MAX_INPUT_SIZE 1024
-# define MAX_HISTORY_SIZE 100
 # define MAX_ARGS 100
 # define MAX_REDIR 10
-# define BLUE "\033[0;34m"
-# define RESET "\033[0m"
 
 typedef enum e_token_type
 {
@@ -82,12 +76,8 @@ typedef struct s_shell
 	char			**env;
 	int				exit_status;
 	int				should_exit;
-	int				cursor_pos;
 	char			*current_line;
 	t_token			*current_tokens;
-	char			*history[MAX_HISTORY_SIZE];
-	int				history_count;
-	int				history_index;
 }	t_shell;
 
 typedef struct s_parse_ctx
@@ -107,14 +97,6 @@ typedef struct s_token_ctx
 	t_token			**head;
 	t_token			**current;
 }	t_token_ctx;
-
-typedef struct s_tab_ctx
-{
-	char			*parts[3];
-	char			*dir_path;
-	char			*common;
-	int				matches;
-}	t_tab_ctx;
 
 extern int			g_signal_received;
 
@@ -189,32 +171,9 @@ void				free_array(char **array);
 void				setup_signals(void);
 void				sigint_handler(int sig);
 void				sigquit_handler(int sig);
-void				print_error(char *msg);
 
-/* Input and history functions */
-void				init_history(t_shell *shell);
-char				*enhanced_readline(char *prompt, t_shell *shell);
-void				add_history_entry(t_shell *shell, char *line);
-char				*get_history_command(t_shell *shell, int direction);
-void				free_history(t_shell *shell);
+/* Input and display functions */
 void				display_welcome(char *message);
-int					read_byte(int *out);
-char				*read_non_tty(void);
-int					setup_terminal(struct termios *old, struct termios *new);
-void				handle_special_char(char *input, int ch, char *prompt,
-						t_shell *shell);
-int					process_input_loop(char *input, char *prompt,
-						t_shell *shell);
-void				handle_up_arrow(char *line, int *pos, char *prompt,
-						t_shell *shell);
-void				handle_down_arrow(char *line, int *pos, char *prompt,
-						t_shell *shell);
-void				handle_left_arrow(char *line, int *pos, char *prompt);
-void				handle_right_arrow(char *line, int *pos, char *prompt);
-void				handle_char(char *line, int *pos, char c, char *prompt);
-void				handle_backspace(char *line, int *pos, char *prompt);
-void				handle_tab(char *line, int *pos, char *prompt);
-void				refresh_line(char *line, int pos, char *prompt);
 
 /* Environment variable expansion */
 char				*expand_env_vars(char *input, t_shell *shell);
