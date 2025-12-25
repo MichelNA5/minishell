@@ -21,7 +21,7 @@ SRCS = $(SRC_DIR)/main/main.c $(SRC_DIR)/main/main_helpers.c \
 	$(SRC_DIR)/parsing/parsing_init.c $(SRC_DIR)/parsing/parsing_helpers.c \
 	$(SRC_DIR)/parsing/parsing_redir_operand.c \
 	$(SRC_DIR)/tokenize/tokenize.c $(SRC_DIR)/tokenize/token_handlers.c \
-	$(SRC_DIR)/redirections/redirections.c $(SRC_DIR)/redirections/redirections_helper.c \
+	$(SRC_DIR)/redirections/redirections_helper.c \
 	$(SRC_DIR)/env/env.c $(SRC_DIR)/env/env_helpers.c $(SRC_DIR)/env/env_expansion.c \
 	$(SRC_DIR)/signals/signals.c \
 	$(SRC_DIR)/input/display.c
