@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/25 23:17:46 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/26 00:24:29 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@
 # include <fcntl.h>
 # include <signal.h>
 # include <errno.h>
+# include <termios.h>
+
+# include <dirent.h>
+# include <sys/ioctl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 # include "libft/libft.h"

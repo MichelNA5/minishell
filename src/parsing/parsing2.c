@@ -6,23 +6,13 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/21 18:44:44 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/26 00:23:58 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	print_syntax_error(const char *token)
-{
-	const char	*prefix;
-
-	prefix = "minishell: syntax error near unexpected token `";
-	if (!token)
-		token = "newline";
-	write(STDERR_FILENO, prefix, ft_strlen(prefix));
-	write(STDERR_FILENO, token, ft_strlen(token));
-	write(STDERR_FILENO, "'\n", 2);
-}
+void	print_syntax_error(const char *token);
 
 static int	is_invalid_redir_operand(t_token *operand)
 {

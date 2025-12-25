@@ -6,13 +6,13 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/21 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2025/12/21 18:27:07 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/26 00:23:44 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static void	print_syntax_error(const char *token)
+void	print_syntax_error(const char *token)
 {
 	const char	*prefix;
 

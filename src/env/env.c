@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/18 14:34:54 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/26 00:23:34 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,21 @@
 int			env_count(char **env);
 char		*create_env_var(char *name, char *value);
 int			update_existing_var(char *name, char *new_var, t_shell *shell);
+
+void	free_array(char **array)
+{
+	int	i;
+
+	if (!array)
+		return ;
+	i = 0;
+	while (array[i])
+	{
+		free(array[i]);
+		i++;
+	}
+	free(array);
+}
 
 char	**copy_env(char **env)
 {

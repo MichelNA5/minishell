@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/25 23:17:46 by naous            ###   ########.fr       */
+/*   Updated: 2025/12/26 00:23:34 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,19 +36,4 @@ void	sigint_handler(int sig)
 void	sigquit_handler(int sig)
 {
 	g_signal_received = sig;
-}
-
-void	free_array(char **array)
-{
-	int	i;
-
-	if (!array)
-		return ;
-	i = 0;
-	while (array[i])
-	{
-		free(array[i]);
-		i++;
-	}
-	free(array);
 }
