@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2025/12/22 02:15:53 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/06 20:32:05 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,11 @@ int	handle_word_token(t_parse_ctx *ctx, t_token *current)
 		return (1);
 	if (!value)
 		return (0);
+	if (value[0] == '\0' && (current->separated || *ctx->arg_idx == 0))
+	{
+		free(value);
+		return (1);
+	}
 	if (current->separated == 0 && *ctx->arg_idx > 0)
 		return (join_with_prev_arg(ctx, value));
 	ctx->parser->cmds[ctx->cmd_idx].args[*ctx->arg_idx] = value;
@@ -66,6 +71,7 @@ int	handle_word_token(t_parse_ctx *ctx, t_token *current)
 int	handle_dollar_token(t_parse_ctx *ctx, t_token **cur)
 {
 	char	*value;
+	char	*temp;
 	int		separated;
 
 	if (*ctx->arg_idx >= MAX_ARGS - 1)
@@ -73,13 +79,21 @@ int	handle_dollar_token(t_parse_ctx *ctx, t_token **cur)
 	separated = (*cur)->separated;
 	value = NULL;
 	if ((*cur)->next && (*cur)->next->type == WORD)
-		value = get_var_value((*cur)->next->value, ctx->shell);
+	{
+		temp = ft_strjoin("$", (*cur)->next->value);
+		value = expand_env_vars(temp, ctx->shell);
+		free(temp);
+		*cur = (*cur)->next;
+	}
 	else
 		value = ft_strdup("$");
-	if ((*cur)->next && (*cur)->next->type == WORD)
-		*cur = (*cur)->next;
 	if (!value)
 		return (0);
+	if (value[0] == '\0' && (separated || *ctx->arg_idx == 0))
+	{
+		free(value);
+		return (1);
+	}
 	if (separated == 0 && *ctx->arg_idx > 0)
 		return (join_with_prev_arg(ctx, value));
 	ctx->parser->cmds[ctx->cmd_idx].args[*ctx->arg_idx] = value;

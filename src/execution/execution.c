@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 13:12:40 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/06 21:32:46 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,13 @@ void	execute_command(t_cmd *cmd, t_parser *parser, t_shell *shell)
 
 	fds[0] = dup(STDIN_FILENO);
 	fds[1] = dup(STDOUT_FILENO);
-	if (!cmd || !cmd->args || !cmd->args[0])
+	if (!cmd || !cmd->args || !cmd->args[0] || cmd->args[0][0] == '\0')
 	{
-		shell->exit_status = 2;
+		if (fds[0] != -1)
+			close(fds[0]);
+		if (fds[1] != -1)
+			close(fds[1]);
+		shell->exit_status = 0;
 		return ;
 	}
 	if (setup_redirections(cmd, shell) == -1)

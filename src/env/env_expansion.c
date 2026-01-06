@@ -6,11 +6,16 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/06 20:18:43 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static int	is_valid_var_start(char c)
+{
+	return (ft_isalpha(c) || c == '_');
+}
 
 static char	*do_expansion(char *exp, int *i, t_shell *shell)
 {
@@ -44,6 +49,7 @@ char	*expand_env_vars(char *input, t_shell *shell)
 	char	*expanded_input;
 	int		i;
 	int		in_single_quote;
+	char	*exit_str;
 
 	expanded_input = ft_strdup(input);
 	i = 0;
@@ -54,9 +60,26 @@ char	*expand_env_vars(char *input, t_shell *shell)
 			in_single_quote = !in_single_quote;
 		if (expanded_input[i] == '$' && !in_single_quote)
 		{
-			expanded_input = do_expansion(expanded_input, &i, shell);
-			if (!expanded_input)
-				return (NULL);
+			if (expanded_input[i + 1] == '?')
+			{
+				exit_str = ft_itoa(shell->exit_status);
+				expanded_input = replace_env_var(expanded_input, i, 2, exit_str);
+				if (!expanded_input)
+				{
+					free(exit_str);
+					return (NULL);
+				}
+				i += ft_strlen(exit_str);
+				free(exit_str);
+			}
+			else if (is_valid_var_start(expanded_input[i + 1]))
+			{
+				expanded_input = do_expansion(expanded_input, &i, shell);
+				if (!expanded_input)
+					return (NULL);
+			}
+			else
+				i++;
 		}
 		else
 			i++;
