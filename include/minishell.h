@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/26 00:24:29 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/07 12:39:11 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,8 @@ void				free_array(char **array);
 /* Signal functions */
 void				setup_signals(void);
 void				sigint_handler(int sig);
-void				sigquit_handler(int sig);
+void				set_signals_for_execution(void);
+void				restore_signals_after_execution(void);
 
 /* Input and display functions */
 void				display_welcome(char *message);

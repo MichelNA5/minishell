@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2025/12/20 00:00:00 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/07 12:52:51 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ static int	validate_pipeline(t_parser *parser, t_shell *shell)
 
 static void	exec_pipe_child(t_parser *parser, int i, t_shell *shell)
 {
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 	if (i > 0)
 		dup2(parser->cmds[i].pipe_in, STDIN_FILENO);
 	if (i < parser->cmd_count - 1)
@@ -48,15 +50,31 @@ static void	wait_all_children(t_parser *parser, t_shell *shell)
 {
 	int	i;
 	int	status;
+	int	sig;
+	int	newline_printed;
 
 	i = 0;
+	newline_printed = 0;
 	while (i < parser->cmd_count)
 	{
 		waitpid(-1, &status, 0);
 		if (WIFEXITED(status))
 			shell->exit_status = WEXITSTATUS(status);
 		else if (WIFSIGNALED(status))
-			shell->exit_status = 128 + WTERMSIG(status);
+		{
+			sig = WTERMSIG(status);
+			shell->exit_status = 128 + sig;
+			if (sig == SIGINT && !newline_printed)
+			{
+				write(STDOUT_FILENO, "\n", 1);
+				newline_printed = 1;
+			}
+			else if (sig == SIGQUIT && !newline_printed)
+			{
+				write(STDOUT_FILENO, "Quit (core dumped)\n", 19);
+				newline_printed = 1;
+			}
+		}
 		i++;
 	}
 }
@@ -69,6 +87,7 @@ void	execute_pipeline(t_parser *parser, t_shell *shell)
 	if (!validate_pipeline(parser, shell))
 		return ;
 	setup_pipes(parser);
+	set_signals_for_execution();
 	i = 0;
 	while (i < parser->cmd_count)
 	{
@@ -81,4 +100,5 @@ void	execute_pipeline(t_parser *parser, t_shell *shell)
 	}
 	close_pipes(parser);
 	wait_all_children(parser, shell);
+	restore_signals_after_execution();
 }

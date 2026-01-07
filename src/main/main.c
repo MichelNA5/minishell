@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/25 16:29:39 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/07 12:20:29 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,11 @@ void	minishell_loop(t_shell *shell)
 		line = readline(prompt);
 		shell->current_line = line;
 		free(prompt);
+		if (g_signal_received == SIGINT)
+		{
+			shell->exit_status = 130;
+			g_signal_received = 0;
+		}
 		if (!line)
 		{
 			write(STDOUT_FILENO, "exit\n", 5);

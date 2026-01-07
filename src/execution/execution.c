@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2026/01/06 21:32:46 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/07 12:45:53 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 static void	handle_child_process(t_cmd *cmd, t_parser *parser, t_shell *shell,
 	int *fds)
 {
+	signal(SIGINT, SIG_DFL);
+	signal(SIGQUIT, SIG_DFL);
 	close(fds[0]);
 	close(fds[1]);
 	execute_external(cmd, shell);
@@ -24,10 +26,19 @@ static void	handle_child_process(t_cmd *cmd, t_parser *parser, t_shell *shell,
 
 static void	handle_parent_process(int *status, t_shell *shell)
 {
+	int	sig;
+
 	if (WIFEXITED(*status))
 		shell->exit_status = WEXITSTATUS(*status);
 	else if (WIFSIGNALED(*status))
-		shell->exit_status = 128 + WTERMSIG(*status);
+	{
+		sig = WTERMSIG(*status);
+		shell->exit_status = 128 + sig;
+		if (sig == SIGINT)
+			write(STDOUT_FILENO, "\n", 1);
+		else if (sig == SIGQUIT)
+			write(STDOUT_FILENO, "Quit (core dumped)\n", 19);
+	}
 }
 
 static void	restore_fds(int *fds)
@@ -52,7 +63,9 @@ static void	execute_external_fork(t_cmd *cmd, t_parser *parser,
 		perror("fork");
 	else
 	{
+		set_signals_for_execution();
 		waitpid(pid, &status, 0);
+		restore_signals_after_execution();
 		handle_parent_process(&status, shell);
 	}
 }
