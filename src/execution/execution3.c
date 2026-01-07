@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2026/01/07 12:52:51 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/08 01:39:40 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,11 @@ static void	exec_pipe_child(t_parser *parser, int i, t_shell *shell)
 		dup2(parser->cmds[i].pipe_in, STDIN_FILENO);
 	if (i < parser->cmd_count - 1)
 		dup2(parser->cmds[i].pipe_out, STDOUT_FILENO);
+	if (setup_redirections(&parser->cmds[i], shell) == -1)
+    {
+        cleanup_child_process(parser, shell);
+        exit(1);
+    }
 	close_pipes(parser);
 	if (is_builtin(parser->cmds[i].args[0]))
 		execute_builtin(&parser->cmds[i], shell);
