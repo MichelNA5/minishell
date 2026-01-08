@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2026/01/08 12:21:29 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/08 15:53:12 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,12 @@ char	*find_executable(char *cmd, t_shell *shell)
 
 	if (!cmd || cmd[0] == '\0')
 		return (NULL);
-	if (access(cmd, X_OK) == 0)
-		return (ft_strdup(cmd));
+	if (ft_strchr(cmd, '/'))
+	{
+		if (access(cmd, F_OK) == 0)
+			return (ft_strdup(cmd));
+		return (NULL);
+	}
 	path = get_env_var("PATH", shell->env);
 	if (!path)
 		return (NULL);
@@ -85,6 +89,15 @@ void	execute_external(t_cmd *cmd, t_shell *shell)
 		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
 		ft_putendl_fd(": command not found", STDERR_FILENO);
 		shell->exit_status = 127;
+		return ;
+	}
+	if (access(exec_path, X_OK) != 0)
+	{
+		ft_putstr_fd("minishell: ", STDERR_FILENO);
+		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
+		ft_putendl_fd(": Permission denied", STDERR_FILENO);
+		free(exec_path);
+		shell->exit_status = 126;
 		return ;
 	}
 	if (execve(exec_path, cmd->args, shell->env) == -1)

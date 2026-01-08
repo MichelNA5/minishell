@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2026/01/08 01:39:40 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/08 15:39:45 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ static void	exec_pipe_child(t_parser *parser, int i, t_shell *shell)
 	exit(shell->exit_status);
 }
 
-static void	wait_all_children(t_parser *parser, t_shell *shell)
+static void	wait_all_children(t_parser *parser, t_shell *shell, pid_t *pids)
 {
 	int	i;
 	int	status;
@@ -62,13 +62,17 @@ static void	wait_all_children(t_parser *parser, t_shell *shell)
 	newline_printed = 0;
 	while (i < parser->cmd_count)
 	{
-		waitpid(-1, &status, 0);
-		if (WIFEXITED(status))
-			shell->exit_status = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
+		waitpid(pids[i], &status, 0);
+		if (i == parser->cmd_count - 1)
+		{
+			if (WIFEXITED(status))
+				shell->exit_status = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				shell->exit_status = 128 + WTERMSIG(status);
+		}
+		if (WIFSIGNALED(status))
 		{
 			sig = WTERMSIG(status);
-			shell->exit_status = 128 + sig;
 			if (sig == SIGINT && !newline_printed)
 			{
 				write(STDOUT_FILENO, "\n", 1);
@@ -86,7 +90,7 @@ static void	wait_all_children(t_parser *parser, t_shell *shell)
 
 void	execute_pipeline(t_parser *parser, t_shell *shell)
 {
-	pid_t	pid;
+	pid_t	pids[1024];
 	int		i;
 
 	if (!validate_pipeline(parser, shell))
@@ -96,14 +100,14 @@ void	execute_pipeline(t_parser *parser, t_shell *shell)
 	i = 0;
 	while (i < parser->cmd_count)
 	{
-		pid = fork();
-		if (pid == 0)
+		pids[i] = fork();
+		if (pids[i] == 0)
 			exec_pipe_child(parser, i, shell);
-		else if (pid < 0)
+		else if (pids[i] < 0)
 			perror("fork");
 		i++;
 	}
 	close_pipes(parser);
-	wait_all_children(parser, shell);
+	wait_all_children(parser, shell, pids);
 	restore_signals_after_execution();
 }
