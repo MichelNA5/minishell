@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/01 00:00:00 by mmakhlou          #+#    #+#             */
-/*   Updated: 2025/12/22 02:12:38 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/08 12:21:29 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ char	*find_executable(char *cmd, t_shell *shell)
 void	execute_external(t_cmd *cmd, t_shell *shell)
 {
 	char	*exec_path;
+	char	*sh_args[3];
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 	{
@@ -88,6 +89,13 @@ void	execute_external(t_cmd *cmd, t_shell *shell)
 	}
 	if (execve(exec_path, cmd->args, shell->env) == -1)
 	{
+		if (errno == ENOEXEC)
+		{
+			sh_args[0] = "/bin/sh";
+			sh_args[1] = exec_path;
+			sh_args[2] = NULL;
+			execve("/bin/sh", sh_args, shell->env);
+		}
 		perror("execve");
 		shell->exit_status = 126;
 	}
