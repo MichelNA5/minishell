@@ -48,7 +48,7 @@ static int	handle_quote_token(t_token_ctx *ctx, char quote)
 	return (1);
 }
 
-static int	handle_word_token(t_token_ctx *ctx)
+static int	handle_word_token_ctx(t_token_ctx *ctx)
 {
 	t_token	*w;
 
@@ -99,6 +99,6 @@ int	process_token(t_token_ctx *ctx)
 	else if (ctx->input[*ctx->i] == '"')
 		return (handle_quote_token(ctx, '"'));
 	else
-		return (handle_word_token(ctx));
+		return (handle_word_token_ctx(ctx));
 	return (1);
 }

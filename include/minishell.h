@@ -92,6 +92,13 @@ typedef struct s_parse_ctx
 	t_shell			*shell;
 }	t_parse_ctx;
 
+typedef struct s_token_vars
+{
+	t_token	**head;
+	t_token	**current;
+	int		*i;
+}	t_token_vars;
+
 typedef struct s_token_ctx
 {
 	char			*input;
@@ -116,6 +123,13 @@ t_token				*handle_quotes(char *input, int *i, char quote);
 t_token				*handle_word(char *input, int *i);
 t_parser			*parse_tokens(t_token *tokens, t_shell *shell);
 void				add_token(t_token_ctx *ctx, char *value, t_token_type type);
+int					update_prev_was_redir(t_token *current);
+void				setup_tokenize_context(t_token_ctx *ctx, char *input,
+						t_token_vars *vars);
+t_token				*run_tokenize_loop(t_token_ctx *ctx, char *input,
+						int *prev_was_redir);
+int					process_token_loop(t_token_ctx *ctx, char *input,
+						int *prev_was_redir);
 int					process_token(t_token_ctx *ctx);
 int					validate_tokens_syntax(t_token *tokens);
 int					parse_commands(t_parser *parser, t_token *tokens,
@@ -128,6 +142,9 @@ int					count_commands(t_token *tokens);
 int					count_pipes(t_token *tokens);
 int					init_cmd(t_parser *parser, int cmd_idx);
 t_token				*parse_cmd_tokens(t_parse_ctx *ctx, t_token *current);
+int					handle_word_token(t_parse_ctx *ctx, t_token *current);
+int					handle_dollar_token(t_parse_ctx *ctx, t_token **cur);
+int					join_with_prev_arg(t_parse_ctx *ctx, char *value);
 int					handle_redir_operand(t_redir *redir, t_token **operand,
 						t_shell *shell);
 
@@ -136,6 +153,12 @@ void				execute_command(t_cmd *cmd, t_parser *parser,
 						t_shell *shell);
 void				execute_commands(t_parser *parser, t_shell *shell);
 void				execute_pipeline(t_parser *parser, t_shell *shell);
+int					validate_pipeline(t_parser *parser, t_shell *shell);
+void				exec_pipe_child(t_parser *parser, int i, t_shell *shell);
+void				wait_all_children(t_parser *parser, t_shell *shell,
+						pid_t *pids);
+void				handle_last_child_exit(int status, t_shell *shell);
+void				handle_signal_output(int sig, int *newline_printed);
 void				execute_external(t_cmd *cmd, t_shell *shell);
 int					execute_builtin(t_cmd *cmd, t_shell *shell);
 int					is_builtin(char *cmd);

@@ -56,6 +56,30 @@ static void	process_line(char *line, t_shell *shell)
 	shell->current_tokens = NULL;
 }
 
+static void	handle_signal_received(t_shell *shell)
+{
+	if (g_signal_received == SIGINT)
+	{
+		shell->exit_status = 130;
+		g_signal_received = 0;
+	}
+}
+
+static int	process_loop_iteration(t_shell *shell, char *line)
+{
+	if (!line)
+	{
+		write(STDOUT_FILENO, "exit\n", 5);
+		shell->current_line = NULL;
+		return (1);
+	}
+	if (ft_strlen(line) > 0)
+		process_line(line, shell);
+	free(line);
+	shell->current_line = NULL;
+	return (0);
+}
+
 void	minishell_loop(t_shell *shell)
 {
 	char	*line;
@@ -68,21 +92,9 @@ void	minishell_loop(t_shell *shell)
 		line = readline(prompt);
 		shell->current_line = line;
 		free(prompt);
-		if (g_signal_received == SIGINT)
-		{
-			shell->exit_status = 130;
-			g_signal_received = 0;
-		}
-		if (!line)
-		{
-			write(STDOUT_FILENO, "exit\n", 5);
-			shell->current_line = NULL;
+		handle_signal_received(shell);
+		if (process_loop_iteration(shell, line))
 			break ;
-		}
-		if (ft_strlen(line) > 0)
-			process_line(line, shell);
-		free(line);
-		shell->current_line = NULL;
 		if (shell->should_exit)
 			break ;
 	}

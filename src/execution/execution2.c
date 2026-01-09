@@ -12,70 +12,33 @@
 
 #include "minishell.h"
 
-static char	*check_path_dir(char *dir, char *cmd)
+static void	print_command_error(char *cmd, char *error_msg, t_shell *shell,
+	int exit_code)
 {
-	char	*tmp;
-	char	*exec_path;
-
-	tmp = ft_strjoin(dir, "/");
-	if (!tmp)
-		return (NULL);
-	exec_path = ft_strjoin(tmp, cmd);
-	free(tmp);
-	if (!exec_path)
-		return (NULL);
-	if (access(exec_path, X_OK) == 0)
-		return (exec_path);
-	free(exec_path);
-	return (NULL);
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
+	ft_putstr_fd(cmd, STDERR_FILENO);
+	ft_putendl_fd(error_msg, STDERR_FILENO);
+	shell->exit_status = exit_code;
 }
 
-static char	*search_in_path(char **path_dirs, char *cmd)
+static void	handle_execve_error(char *exec_path, t_shell *shell)
 {
-	char	*result;
-	int		i;
+	char	*sh_args[3];
 
-	i = 0;
-	while (path_dirs[i])
+	if (errno == ENOEXEC)
 	{
-		result = check_path_dir(path_dirs[i], cmd);
-		if (result)
-		{
-			free_array(path_dirs);
-			return (result);
-		}
-		i++;
+		sh_args[0] = "/bin/sh";
+		sh_args[1] = exec_path;
+		sh_args[2] = NULL;
+		execve("/bin/sh", sh_args, shell->env);
 	}
-	free_array(path_dirs);
-	return (NULL);
-}
-
-char	*find_executable(char *cmd, t_shell *shell)
-{
-	char	*path;
-	char	**path_dirs;
-
-	if (!cmd || cmd[0] == '\0')
-		return (NULL);
-	if (ft_strchr(cmd, '/'))
-	{
-		if (access(cmd, F_OK) == 0)
-			return (ft_strdup(cmd));
-		return (NULL);
-	}
-	path = get_env_var("PATH", shell->env);
-	if (!path)
-		return (NULL);
-	path_dirs = ft_split(path, ':');
-	if (!path_dirs)
-		return (NULL);
-	return (search_in_path(path_dirs, cmd));
+	perror("execve");
+	shell->exit_status = 126;
 }
 
 void	execute_external(t_cmd *cmd, t_shell *shell)
 {
 	char	*exec_path;
-	char	*sh_args[3];
 
 	if (!cmd || !cmd->args || !cmd->args[0])
 	{
@@ -85,32 +48,16 @@ void	execute_external(t_cmd *cmd, t_shell *shell)
 	exec_path = find_executable(cmd->args[0], shell);
 	if (!exec_path)
 	{
-		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
-		ft_putendl_fd(": command not found", STDERR_FILENO);
-		shell->exit_status = 127;
+		print_command_error(cmd->args[0], ": command not found", shell, 127);
 		return ;
 	}
 	if (access(exec_path, X_OK) != 0)
 	{
-		ft_putstr_fd("minishell: ", STDERR_FILENO);
-		ft_putstr_fd(cmd->args[0], STDERR_FILENO);
-		ft_putendl_fd(": Permission denied", STDERR_FILENO);
+		print_command_error(cmd->args[0], ": Permission denied", shell, 126);
 		free(exec_path);
-		shell->exit_status = 126;
 		return ;
 	}
 	if (execve(exec_path, cmd->args, shell->env) == -1)
-	{
-		if (errno == ENOEXEC)
-		{
-			sh_args[0] = "/bin/sh";
-			sh_args[1] = exec_path;
-			sh_args[2] = NULL;
-			execve("/bin/sh", sh_args, shell->env);
-		}
-		perror("execve");
-		shell->exit_status = 126;
-	}
+		handle_execve_error(exec_path, shell);
 	free(exec_path);
 }
