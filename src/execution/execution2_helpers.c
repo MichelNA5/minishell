@@ -14,8 +14,9 @@
 
 static char	*check_path_dir(char *dir, char *cmd)
 {
-	char	*tmp;
-	char	*exec_path;
+	char			*tmp;
+	char			*exec_path;
+	struct stat		st;
 
 	tmp = ft_strjoin(dir, "/");
 	if (!tmp)
@@ -24,6 +25,11 @@ static char	*check_path_dir(char *dir, char *cmd)
 	free(tmp);
 	if (!exec_path)
 		return (NULL);
+	if (stat(exec_path, &st) == 0 && S_ISDIR(st.st_mode))
+	{
+		free(exec_path);
+		return (NULL);
+	}
 	if (access(exec_path, X_OK) == 0)
 		return (exec_path);
 	free(exec_path);

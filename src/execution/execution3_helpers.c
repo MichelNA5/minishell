@@ -34,15 +34,21 @@ void	exec_pipe_child(t_parser *parser, int i, t_shell *shell)
 	signal(SIGINT, SIG_DFL);
 	signal(SIGQUIT, SIG_DFL);
 	if (i > 0)
+	{
 		dup2(parser->cmds[i].pipe_in, STDIN_FILENO);
+		close(parser->cmds[i].pipe_in);
+	}
 	if (i < parser->cmd_count - 1)
+	{
 		dup2(parser->cmds[i].pipe_out, STDOUT_FILENO);
+		close(parser->cmds[i].pipe_out);
+	}
+	close_pipes(parser);
 	if (setup_redirections(&parser->cmds[i], shell) == -1)
 	{
 		cleanup_child_process(parser, shell);
 		exit(1);
 	}
-	close_pipes(parser);
 	if (is_builtin(parser->cmds[i].args[0]))
 		execute_builtin(&parser->cmds[i], shell);
 	else
