@@ -20,15 +20,15 @@ char	*build_prompt(void)
 
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
-		return (ft_strdup("minishell$ "));
-	tmp = ft_strjoin("minishell:", cwd);
+		return (ft_strdup("\033[0;33mMarioMichelminishell$ \033[0m"));
+	tmp = ft_strjoin("\033[0;33mMarioMichelminishell:", cwd);
 	free(cwd);
 	if (!tmp)
-		return (ft_strdup("minishell$ "));
-	prompt = ft_strjoin(tmp, "$ ");
+		return (ft_strdup("\033[0;33mMarioMichelminishell$ \033[0m"));
+	prompt = ft_strjoin(tmp, "\033[0m$ ");
 	free(tmp);
 	if (!prompt)
-		return (ft_strdup("minishell$ "));
+		return (ft_strdup("\033[0;33mMarioMichelminishell$ \033[0m"));
 	return (prompt);
 }
 
