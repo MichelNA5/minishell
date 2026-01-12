@@ -58,6 +58,7 @@ typedef struct s_redir
 {
 	t_token_type	type;
 	char			*file;
+	int				heredoc_fd;
 }	t_redir;
 
 typedef struct s_cmd
@@ -165,7 +166,11 @@ int					is_builtin(char *cmd);
 char				*find_executable(char *cmd, t_shell *shell);
 int					setup_redirections(t_cmd *cmd, t_shell *shell);
 int					handle_heredoc(char *delimiter, t_shell *shell);
+int					process_heredocs(t_parser *parser, t_shell *shell);
 void				restore_redirections(void);
+void				restore_fds(int *fds);
+int					prepare_command_execution(t_cmd *cmd, t_parser *parser,
+						t_shell *shell, int *fds);
 void				setup_pipes(t_parser *parser);
 void				close_pipes(t_parser *parser);
 

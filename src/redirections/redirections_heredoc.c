@@ -6,7 +6,7 @@
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/12 00:00:00 by naous             #+#    #+#             */
-/*   Updated: 2026/01/12 00:00:00 by naous            ###   ########.fr       */
+/*   Updated: 2026/01/13 00:31:30 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,8 +56,32 @@ int	handle_heredoc(char *delimiter, t_shell *shell)
 	if (result == -1)
 		return (-1);
 	close(fd[1]);
-	dup2(fd[0], STDIN_FILENO);
-	close(fd[0]);
 	setup_signals();
+	return (fd[0]);
+}
+
+int	process_heredocs(t_parser *parser, t_shell *shell)
+{
+	int	i;
+	int	j;
+	int	fd;
+
+	i = 0;
+	while (i < parser->cmd_count)
+	{
+		j = 0;
+		while (j < parser->cmds[i].redir_count)
+		{
+			if (parser->cmds[i].redirs[j].type == REDIR_HEREDOC)
+			{
+				fd = handle_heredoc(parser->cmds[i].redirs[j].file, shell);
+				if (fd == -1)
+					return (-1);
+				parser->cmds[i].redirs[j].heredoc_fd = fd;
+			}
+			j++;
+		}
+		i++;
+	}
 	return (0);
 }

@@ -41,15 +41,6 @@ static void	handle_parent_process(int *status, t_shell *shell)
 	}
 }
 
-static void	restore_fds(int *fds)
-{
-	restore_redirections();
-	dup2(fds[0], STDIN_FILENO);
-	dup2(fds[1], STDOUT_FILENO);
-	close(fds[0]);
-	close(fds[1]);
-}
-
 static void	execute_external_fork(t_cmd *cmd, t_parser *parser,
 	t_shell *shell, int *fds)
 {
@@ -85,13 +76,8 @@ void	execute_command(t_cmd *cmd, t_parser *parser, t_shell *shell)
 		shell->exit_status = 0;
 		return ;
 	}
-	if (setup_redirections(cmd, shell) == -1)
-	{
-		restore_fds(fds);
-		if (shell->exit_status != 130)
-			shell->exit_status = 1;
+	if (prepare_command_execution(cmd, parser, shell, fds) == -1)
 		return ;
-	}
 	if (is_builtin(cmd->args[0]))
 		execute_builtin(cmd, shell);
 	else

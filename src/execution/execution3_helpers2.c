@@ -64,6 +64,8 @@ void	execute_pipeline(t_parser *parser, t_shell *shell)
 
 	if (!validate_pipeline(parser, shell))
 		return ;
+	if (process_heredocs(parser, shell) == -1)
+		return ;
 	setup_pipes(parser);
 	set_signals_for_execution();
 	i = 0;

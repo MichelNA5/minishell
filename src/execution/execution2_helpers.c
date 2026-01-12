@@ -77,3 +77,31 @@ char	*find_executable(char *cmd, t_shell *shell)
 		return (NULL);
 	return (search_in_path(path_dirs, cmd));
 }
+
+void	restore_fds(int *fds)
+{
+	restore_redirections();
+	dup2(fds[0], STDIN_FILENO);
+	dup2(fds[1], STDOUT_FILENO);
+	close(fds[0]);
+	close(fds[1]);
+}
+
+int	prepare_command_execution(t_cmd *cmd, t_parser *parser,
+	t_shell *shell, int *fds)
+{
+	(void)cmd;
+	if (process_heredocs(parser, shell) == -1)
+	{
+		restore_fds(fds);
+		return (-1);
+	}
+	if (setup_redirections(cmd, shell) == -1)
+	{
+		restore_fds(fds);
+		if (shell->exit_status != 130)
+			shell->exit_status = 1;
+		return (-1);
+	}
+	return (0);
+}

@@ -47,6 +47,7 @@ static int	handle_redir_out(char *file, int append)
 
 static int	handle_single_redir(t_cmd *cmd, int i, t_shell *shell)
 {
+	(void)shell;
 	if (cmd->redirs[i].type == REDIR_IN)
 	{
 		if (handle_redir_in(cmd->redirs[i].file) == -1)
@@ -64,8 +65,11 @@ static int	handle_single_redir(t_cmd *cmd, int i, t_shell *shell)
 	}
 	else if (cmd->redirs[i].type == REDIR_HEREDOC)
 	{
-		if (handle_heredoc(cmd->redirs[i].file, shell) == -1)
-			return (-1);
+		if (cmd->redirs[i].heredoc_fd != -1)
+		{
+			dup2(cmd->redirs[i].heredoc_fd, STDIN_FILENO);
+			close(cmd->redirs[i].heredoc_fd);
+		}
 	}
 	return (0);
 }
