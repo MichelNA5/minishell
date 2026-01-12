@@ -5,7 +5,7 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: naous <naous@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/20 00:00:00 by naous             #+#    #+#             */
+/*   Created: 2025/12/20 12:00:00 by naous             #+#    #+#             */
 /*   Updated: 2025/12/25 16:29:39 by naous            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
@@ -20,15 +20,18 @@ char	*build_prompt(void)
 
 	cwd = getcwd(NULL, 0);
 	if (!cwd)
-		return (ft_strdup("\001\033[0;33m\002MarioMichelminishell$ \001\033[0m\002"));
+		return (ft_strdup("\001\033[0;33m\002MarioMichelminishell$ "
+				"\001\033[0m\002"));
 	tmp = ft_strjoin("\001\033[0;33m\002MarioMichelminishell:", cwd);
 	free(cwd);
 	if (!tmp)
-		return (ft_strdup("\001\033[0;33m\002MarioMichelminishell$ \001\033[0m\002"));
+		return (ft_strdup("\001\033[0;33m\002MarioMichelminishell$ "
+				"\001\033[0m\002"));
 	prompt = ft_strjoin(tmp, "\001\033[0m\002$ ");
 	free(tmp);
 	if (!prompt)
-		return (ft_strdup("\001\033[0;33m\002MarioMichelminishell$ \001\033[0m\002"));
+		return (ft_strdup("\001\033[0;33m\002MarioMichelminishell$ "
+				"\001\033[0m\002"));
 	return (prompt);
 }
 
