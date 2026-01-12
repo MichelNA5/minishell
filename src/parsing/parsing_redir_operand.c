@@ -71,6 +71,14 @@ int	handle_redir_operand(t_redir *redir, t_token **operand, t_shell *shell)
 {
 	if ((*operand)->type == DOLLAR)
 		return (handle_dollar_operand(redir, operand, shell));
+	if (redir->type == REDIR_HEREDOC)
+	{
+		if ((*operand)->type == QUOTE_SINGLE
+			|| (*operand)->type == QUOTE_DOUBLE)
+			redir->quoted_delimiter = 1;
+		else
+			redir->quoted_delimiter = 0;
+	}
 	redir->file = get_token_value(*operand, shell);
 	if (!redir->file)
 		return (0);

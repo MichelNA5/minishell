@@ -24,7 +24,21 @@ static int	handle_heredoc_interrupt(int *fd, t_shell *shell, char *line)
 	return (-1);
 }
 
-static int	read_heredoc_lines(int *fd, char *delimiter, t_shell *shell)
+static char	*expand_heredoc_line(char *line, t_shell *shell, int quoted)
+{
+	char	*expanded;
+
+	if (!quoted)
+	{
+		expanded = expand_env_vars(line, shell);
+		free(line);
+		return (expanded);
+	}
+	return (line);
+}
+
+static int	read_heredoc_lines(int *fd, char *delimiter, t_shell *shell,
+	int quoted)
 {
 	char	*line;
 
@@ -38,6 +52,9 @@ static int	read_heredoc_lines(int *fd, char *delimiter, t_shell *shell)
 			free(line);
 			break ;
 		}
+		line = expand_heredoc_line(line, shell, quoted);
+		if (!line)
+			return (handle_heredoc_interrupt(fd, shell, NULL));
 		write(fd[1], line, ft_strlen(line));
 		write(fd[1], "\n", 1);
 		free(line);
@@ -45,14 +62,14 @@ static int	read_heredoc_lines(int *fd, char *delimiter, t_shell *shell)
 	return (0);
 }
 
-int	handle_heredoc(char *delimiter, t_shell *shell)
+int	handle_heredoc(char *delimiter, t_shell *shell, int quoted)
 {
 	int		fd[2];
 	int		result;
 
 	setup_signals_heredoc();
 	pipe(fd);
-	result = read_heredoc_lines(fd, delimiter, shell);
+	result = read_heredoc_lines(fd, delimiter, shell, quoted);
 	if (result == -1)
 		return (-1);
 	close(fd[1]);
@@ -74,7 +91,8 @@ int	process_heredocs(t_parser *parser, t_shell *shell)
 		{
 			if (parser->cmds[i].redirs[j].type == REDIR_HEREDOC)
 			{
-				fd = handle_heredoc(parser->cmds[i].redirs[j].file, shell);
+				fd = handle_heredoc(parser->cmds[i].redirs[j].file, shell,
+						parser->cmds[i].redirs[j].quoted_delimiter);
 				if (fd == -1)
 					return (-1);
 				parser->cmds[i].redirs[j].heredoc_fd = fd;
