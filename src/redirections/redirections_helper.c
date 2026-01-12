@@ -45,6 +45,31 @@ static int	handle_redir_out(char *file, int append)
 	return (0);
 }
 
+static int	handle_single_redir(t_cmd *cmd, int i, t_shell *shell)
+{
+	if (cmd->redirs[i].type == REDIR_IN)
+	{
+		if (handle_redir_in(cmd->redirs[i].file) == -1)
+			return (-1);
+	}
+	else if (cmd->redirs[i].type == REDIR_OUT)
+	{
+		if (handle_redir_out(cmd->redirs[i].file, 0) == -1)
+			return (-1);
+	}
+	else if (cmd->redirs[i].type == REDIR_APPEND)
+	{
+		if (handle_redir_out(cmd->redirs[i].file, 1) == -1)
+			return (-1);
+	}
+	else if (cmd->redirs[i].type == REDIR_HEREDOC)
+	{
+		if (handle_heredoc(cmd->redirs[i].file, shell) == -1)
+			return (-1);
+	}
+	return (0);
+}
+
 int	setup_redirections(t_cmd *cmd, t_shell *shell)
 {
 	int	i;
@@ -52,50 +77,11 @@ int	setup_redirections(t_cmd *cmd, t_shell *shell)
 	i = 0;
 	while (i < cmd->redir_count)
 	{
-		if (cmd->redirs[i].type == REDIR_IN)
-		{
-			if (handle_redir_in(cmd->redirs[i].file) == -1)
-				return (-1);
-		}
-		else if (cmd->redirs[i].type == REDIR_OUT)
-		{
-			if (handle_redir_out(cmd->redirs[i].file, 0) == -1)
-				return (-1);
-		}
-		else if (cmd->redirs[i].type == REDIR_APPEND)
-		{
-			if (handle_redir_out(cmd->redirs[i].file, 1) == -1)
-				return (-1);
-		}
-		else if (cmd->redirs[i].type == REDIR_HEREDOC)
-			handle_heredoc(cmd->redirs[i].file, shell);
+		if (handle_single_redir(cmd, i, shell) == -1)
+			return (-1);
 		i++;
 	}
 	return (0);
-}
-
-void	handle_heredoc(char *delimiter, t_shell *shell)
-{
-	char	*line;
-	int		fd[2];
-
-	(void)shell;
-	pipe(fd);
-	while (1)
-	{
-		line = readline("> ");
-		if (!line || ft_strcmp(line, delimiter) == 0)
-		{
-			free(line);
-			break ;
-		}
-		write(fd[1], line, ft_strlen(line));
-		write(fd[1], "\n", 1);
-		free(line);
-	}
-	close(fd[1]);
-	dup2(fd[0], STDIN_FILENO);
-	close(fd[0]);
 }
 
 void	restore_redirections(void)

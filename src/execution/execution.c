@@ -88,7 +88,8 @@ void	execute_command(t_cmd *cmd, t_parser *parser, t_shell *shell)
 	if (setup_redirections(cmd, shell) == -1)
 	{
 		restore_fds(fds);
-		shell->exit_status = 1;
+		if (shell->exit_status != 130)
+			shell->exit_status = 1;
 		return ;
 	}
 	if (is_builtin(cmd->args[0]))

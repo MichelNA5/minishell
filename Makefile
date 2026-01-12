@@ -26,9 +26,10 @@ SRCS = $(SRC_DIR)/main/main.c $(SRC_DIR)/main/main_helpers.c \
 	$(SRC_DIR)/tokenize/tokenize.c $(SRC_DIR)/tokenize/token_handlers.c \
 	$(SRC_DIR)/tokenize/token_utils.c $(SRC_DIR)/tokenize/token_utils2.c \
 	$(SRC_DIR)/redirections/redirections_helper.c \
+	$(SRC_DIR)/redirections/redirections_heredoc.c \
 	$(SRC_DIR)/env/env.c $(SRC_DIR)/env/env2.c $(SRC_DIR)/env/env_helpers.c \
 	$(SRC_DIR)/env/env_expansion.c $(SRC_DIR)/env/env_expansion2.c \
-	$(SRC_DIR)/signals/signals.c \
+	$(SRC_DIR)/signals/signals.c $(SRC_DIR)/signals/signals_heredoc.c \
 	$(SRC_DIR)/input/display.c
 
 OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)

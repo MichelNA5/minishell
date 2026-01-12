@@ -164,7 +164,7 @@ int					execute_builtin(t_cmd *cmd, t_shell *shell);
 int					is_builtin(char *cmd);
 char				*find_executable(char *cmd, t_shell *shell);
 int					setup_redirections(t_cmd *cmd, t_shell *shell);
-void				handle_heredoc(char *delimiter, t_shell *shell);
+int					handle_heredoc(char *delimiter, t_shell *shell);
 void				restore_redirections(void);
 void				setup_pipes(t_parser *parser);
 void				close_pipes(t_parser *parser);
@@ -196,6 +196,7 @@ void				free_array(char **array);
 
 /* Signal functions */
 void				setup_signals(void);
+void				setup_signals_heredoc(void);
 void				sigint_handler(int sig);
 void				set_signals_for_execution(void);
 void				restore_signals_after_execution(void);
