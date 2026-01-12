@@ -20,10 +20,10 @@ int	builtin_echo(t_cmd *cmd, t_shell *shell)
 	(void)shell;
 	i = 1;
 	newline = 1;
-	if (cmd->args[1] && ft_strcmp(cmd->args[1], "-n") == 0)
+	while (cmd->args[i] && ft_strcmp(cmd->args[i], "-n") == 0)
 	{
 		newline = 0;
-		i = 2;
+		i++;
 	}
 	while (cmd->args[i])
 	{

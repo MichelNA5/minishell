@@ -51,6 +51,8 @@ static void	process_line(char *line, t_shell *shell)
 			execute_commands(parser, shell);
 			free_parser(parser);
 		}
+		else
+			shell->exit_status = 2;
 		free_tokens(tokens);
 	}
 	shell->current_tokens = NULL;
