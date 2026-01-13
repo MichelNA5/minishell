@@ -12,8 +12,6 @@
 
 #include "minishell.h"
 
-/* execute_commands and execute_pipeline are implemented in execution.c */
-
 void	setup_pipes(t_parser *parser)
 {
 	int	i;
@@ -53,4 +51,30 @@ void	close_pipes(t_parser *parser)
 			close(parser->cmds[i].pipe_out);
 		i++;
 	}
+}
+
+void	execute_pipeline(t_parser *parser, t_shell *shell)
+{
+	pid_t	pids[1024];
+	int		i;
+
+	if (!validate_pipeline(parser, shell))
+		return ;
+	if (process_heredocs(parser, shell) == -1)
+		return ;
+	setup_pipes(parser);
+	set_signals_for_execution();
+	i = 0;
+	while (i < parser->cmd_count)
+	{
+		pids[i] = fork();
+		if (pids[i] == 0)
+			exec_pipe_child(parser, i, shell);
+		else if (pids[i] < 0)
+			perror("fork");
+		i++;
+	}
+	close_pipes(parser);
+	wait_all_children(parser, shell, pids);
+	restore_signals_after_execution();
 }

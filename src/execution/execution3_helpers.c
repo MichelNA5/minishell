@@ -56,3 +56,19 @@ void	exec_pipe_child(t_parser *parser, int i, t_shell *shell)
 	cleanup_child_process(parser, shell);
 	exit(shell->exit_status);
 }
+
+void	handle_last_child_exit(int status, t_shell *shell)
+{
+	int	sig;
+
+	if (WIFEXITED(status))
+		shell->exit_status = WEXITSTATUS(status);
+	else if (WIFSIGNALED(status))
+	{
+		sig = WTERMSIG(status);
+		if (sig == SIGPIPE)
+			shell->exit_status = 0;
+		else
+			shell->exit_status = 128 + sig;
+	}
+}
