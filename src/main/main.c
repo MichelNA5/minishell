@@ -55,6 +55,8 @@ static void	process_line(char *line, t_shell *shell)
 			shell->exit_status = 2;
 		free_tokens(tokens);
 	}
+	else
+		shell->exit_status = 2;
 	shell->current_tokens = NULL;
 }
 
